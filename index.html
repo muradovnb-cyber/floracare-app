@@ -967,7 +967,7 @@ body::before{
               <div class="p-card-ico" style="background:#201515">💳</div>
               <div>
                 <div class="p-card-title">Июнь 2025</div>
-                <div class="p-card-sub">3 490 ₽ · 1 июня</div>
+                <div class="p-card-sub">990 000 сум · 1 июня</div>
               </div>
               <div style="margin-left:auto;background:rgba(201,151,62,.12);color:#C4973E;font-size:8px;font-weight:600;padding:3px 9px;border-radius:12px;flex-shrink:0;">Скоро</div>
             </div>
@@ -1005,7 +1005,7 @@ body::before{
     <div class="tc tc-a reveal">
       <div class="tc-name">Лайт</div>
       <div class="tc-freq">1 визит в месяц · до 5 растений</div>
-      <div class="tc-price">1 990 <span class="tc-mo">₽/мес</span></div>
+      <div class="tc-price">720 000 <span class="tc-mo">сум/мес</span></div>
       <div class="tc-div"></div>
       <div class="tc-feats">
         <div class="tc-feat"><div class="tc-chk">✓</div>Осмотр растений</div>
@@ -1019,7 +1019,7 @@ body::before{
       <div class="tc-pop-tag">Популярный</div>
       <div class="tc-name">Стандарт</div>
       <div class="tc-freq">2 визита в месяц · до 15 растений</div>
-      <div class="tc-price">3 490 <span class="tc-mo">₽/мес</span></div>
+      <div class="tc-price">990 000 <span class="tc-mo">сум/мес</span></div>
       <div class="tc-div"></div>
       <div class="tc-feats">
         <div class="tc-feat"><div class="tc-chk">✓</div>Осмотр и диагностика</div>
@@ -1033,7 +1033,7 @@ body::before{
     <div class="tc tc-c reveal">
       <div class="tc-name">Макс</div>
       <div class="tc-freq">4 визита в месяц · без ограничений</div>
-      <div class="tc-price">5 990 <span class="tc-mo">₽/мес</span></div>
+      <div class="tc-price">1 490 000 <span class="tc-mo">сум/мес</span></div>
       <div class="tc-div"></div>
       <div class="tc-feats">
         <div class="tc-feat"><div class="tc-chk">✓</div>Полный уход и мониторинг</div>
@@ -1415,8 +1415,8 @@ var TARIFFS = [{
   cls: "tc-l",
   name: "Лайт",
   freq: "1 визит в месяц",
-  price: "1 990",
-  mo: "₽ / мес",
+  price: "720 000",
+  mo: "сум / мес",
   pop: false,
   feats: ["Осмотр растений", "Базовый полив", "Консультация", "Фотоотчёт"],
   btn: "Подключить Лайт"
@@ -1424,8 +1424,8 @@ var TARIFFS = [{
   cls: "tc-s",
   name: "Стандарт",
   freq: "2 визита в месяц",
-  price: "3 490",
-  mo: "₽ / мес",
+  price: "990 000",
+  mo: "сум / мес",
   pop: true,
   feats: ["Осмотр и диагностика", "Полив и удобрение", "Пересадка при необходимости", "Консультация 24/7", "Фотоотчёт"],
   btn: "Подключить Стандарт"
@@ -1433,8 +1433,8 @@ var TARIFFS = [{
   cls: "tc-m",
   name: "Макс",
   freq: "4 визита в месяц",
-  price: "5 990",
-  mo: "₽ / мес",
+  price: "1 490 000",
+  mo: "сум / мес",
   pop: false,
   feats: ["Полный уход и мониторинг", "Пересадка включена", "Лечение болезней", "Персональный агроном", "Приоритетный фотоотчёт"],
   btn: "Подключить Макс"
@@ -1520,17 +1520,17 @@ var SCHEDULE = [{
 var PAYMENTS = [{
   period: "Апрель 2025",
   date: "1 апр 2025",
-  amt: "3 490 ₽",
+  amt: "990 000 сум",
   ok: true
 }, {
   period: "Май 2025",
   date: "1 мая 2025",
-  amt: "3 490 ₽",
+  amt: "990 000 сум",
   ok: true
 }, {
   period: "Июнь 2025",
   date: "1 июн 2025",
-  amt: "3 490 ₽",
+  amt: "990 000 сум",
   ok: false
 }];
 var REPORTS = [{
@@ -1589,7 +1589,7 @@ var NOTIFS = [{
   icon: "💳",
   bg: "#DDEEF8",
   title: "Списание 1 июня",
-  text: "Запланировано списание 3 490 ₽ за тариф Стандарт.",
+  text: "Запланировано списание 990 000 сум за тариф Стандарт.",
   time: "1 апр, 10:00",
   unread: false
 }, {
@@ -1818,7 +1818,7 @@ function PaymentPage(_ref3) {
     paid = _useState8[0],
     setPaid = _useState8[1];
   var plan = TARIFFS[selected];
-  var prices = ["1 990", "3 490", "5 990"];
+  var prices = ["720 000", "990 000", "1 490 000"];
   if (paid) return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: "80vh",
@@ -3524,7 +3524,7 @@ function AdminApp(_ref8) {
   var totalRevenue = db.visits.filter(function (v) {
     return v.status === "done";
   }).length * 280000;
-  var mrr = CLIENTS.length * 1100000;
+  var mrr = CLIENTS.length * 990000;
   var approveReport = function approveReport(visitId) {
     setDb(function (prev) {
       return _objectSpread(_objectSpread({}, prev), {}, {
@@ -4194,7 +4194,7 @@ function AdminApp(_ref8) {
         textAlign: "right",
         marginTop: 3
       }
-    }, c.plan === "Макс" ? "2 000 000" : c.plan === "Стандарт" ? "1 100 000" : "600 000", " \u0441\u0443\u043C/\u043C\u0435\u0441")));
+    }, c.plan === "Макс" ? "1 490 000" : c.plan === "Стандарт" ? "990 000" : "720 000", " \u0441\u0443\u043C/\u043C\u0435\u0441")));
   }), isFullAdmin && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "12px 0",
