@@ -64,32 +64,193 @@ body.mode-desktop{background:#080C08;}
   transition:opacity .3s;
 }
 #role-picker.hidden{opacity:0;pointer-events:none;}
-.rp-logo{font-family:"Cormorant Garamond",serif;font-size:40px;font-weight:300;color:#E8E0D0;letter-spacing:-.5px;margin-bottom:6px;text-align:center;}
-.rp-logo em{color:#4D9149;font-style:italic;}
-.rp-sub{font-size:12px;color:rgba(232,224,208,.3);font-family:"DM Sans",sans-serif;margin-bottom:40px;letter-spacing:1px;text-transform:uppercase;text-align:center;}
-.rp-device-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  background:rgba(77,145,73,.1);border:1px solid rgba(77,145,73,.2);
-  color:#7DC97A;font-size:11px;font-family:"DM Sans",sans-serif;font-weight:500;
-  padding:5px 14px;border-radius:30px;margin-bottom:32px;letter-spacing:.3px;
+
+/* ── LANDING PAGE ── */
+.landing{
+  position:fixed;inset:0;z-index:8888;
+  display:flex;flex-direction:column;
+  background:#080C08;
+  overflow-y:auto;
+  transition:opacity .4s;
 }
-.rp-title{font-size:14px;font-weight:500;color:rgba(232,224,208,.45);font-family:"DM Sans",sans-serif;margin-bottom:16px;letter-spacing:.5px;text-transform:uppercase;}
-.rp-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;}
-.rp-card{
-  background:#141E14;border:1px solid rgba(255,255,255,.06);
-  border-radius:20px;padding:20px 22px;
-  display:flex;align-items:center;gap:16px;cursor:pointer;
-  transition:border-color .2s,background .2s;
+.landing.hidden{opacity:0;pointer-events:none;}
+
+.land-hero{
+  flex:1;display:flex;flex-direction:column;
+  padding:0 24px;
+  position:relative;overflow:hidden;
+  min-height:100vh;
+}
+.land-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 400px 400px at 80% 30%,rgba(77,145,73,.18) 0%,transparent 60%),
+    radial-gradient(ellipse 300px 300px at 10% 80%,rgba(26,58,42,.4) 0%,transparent 60%);
+}
+.land-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 70%);
+}
+.land-deco{
+  position:absolute;right:-40px;bottom:-60px;
+  font-size:360px;opacity:.04;line-height:1;
+  pointer-events:none;user-select:none;
+  animation:floatL 10s ease-in-out infinite;
+}
+@keyframes floatL{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
+
+.land-inner{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;
+  padding-top:64px;flex:1;
+}
+.land-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:500;color:#E8E0D0;
+  letter-spacing:.5px;margin-bottom:48px;
+}
+.land-logo em{color:#4D9149;font-style:italic;}
+
+.land-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-bottom:20px;
+}
+.land-eyebrow-line{width:24px;height:1px;background:#4D9149;}
+.land-eyebrow-text{font-size:11px;font-weight:500;color:#4D9149;letter-spacing:2px;text-transform:uppercase;}
+
+.land-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(44px,12vw,72px);
+  font-weight:300;color:#E8E0D0;
+  line-height:1.05;letter-spacing:-1.5px;
+  margin-bottom:18px;
+}
+.land-h1 em{font-style:italic;color:#7DC97A;}
+
+.land-p{
+  font-size:16px;color:rgba(232,224,208,.45);
+  font-weight:300;line-height:1.7;
+  max-width:340px;margin-bottom:36px;
+}
+
+.land-login-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  background:#4D9149;color:#050A05;
+  padding:16px 32px;border-radius:50px;
+  font-size:15px;font-weight:600;border:none;cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 0 40px rgba(77,145,73,.3);
+  align-self:flex-start;
+  font-family:'DM Sans',sans-serif;
+}
+.land-login-btn:hover{background:#6DC86A;transform:translateY(-1px);box-shadow:0 4px 40px rgba(77,145,73,.45);}
+.land-btn-arr{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(0,0,0,.2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+
+.land-services{
+  display:flex;gap:8px;margin-top:40px;flex-wrap:wrap;
+}
+.land-svc-tag{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  color:rgba(232,224,208,.4);
+  font-size:11px;font-weight:400;
+  padding:5px 14px;border-radius:30px;
+}
+
+.land-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid rgba(255,255,255,.06);
+  margin-top:auto;padding:28px 0 32px;
+}
+.land-stat{text-align:center;padding:0 8px;}
+.land-stat-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:300;color:#E8E0D0;line-height:1;
+}
+.land-stat-l{font-size:10px;color:rgba(232,224,208,.3);margin-top:4px;letter-spacing:.5px;}
+.land-stat+.land-stat{border-left:1px solid rgba(255,255,255,.06);}
+
+/* back btn */
+#back-btn{
+  position:fixed;top:68px;left:16px;z-index:500;
+  background:rgba(20,30,20,.9);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:6px 14px 6px 10px;
+  display:none;align-items:center;gap:6px;cursor:pointer;
+  font-family:"DM Sans",sans-serif;font-size:12px;color:#7DC97A;font-weight:500;
+  backdrop-filter:blur(10px);
   -webkit-tap-highlight-color:transparent;
 }
-.rp-card:hover,.rp-card:active{background:#182818;border-color:rgba(77,145,73,.3);}
-.rp-card-icon{font-size:28px;flex-shrink:0;}
-.rp-card-name{font-family:"DM Sans",sans-serif;font-size:16px;font-weight:600;color:#E8E0D0;margin-bottom:3px;}
-.rp-card-desc{font-family:"DM Sans",sans-serif;font-size:12px;color:rgba(232,224,208,.35);font-weight:300;}
-.rp-card-arrow{margin-left:auto;color:rgba(77,145,73,.5);font-size:20px;}
-.rp-version{font-size:10px;color:rgba(232,224,208,.15);font-family:"DM Sans",sans-serif;margin-top:32px;letter-spacing:.5px;}
+#back-btn.visible{display:flex;}>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#080C08"/>
+<title>FloraCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-/* BACK BTN (mobile) */
+<style>
+/* ── UNIVERSAL BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:4px;height:0;}
+::-webkit-scrollbar-thumb{background:#2A3A2A;border-radius:2px;}
+
+/* MODE WRAPPER */
+body{margin:0;padding:0;min-height:100vh;}
+body.mode-mobile{background:#111;display:flex;justify-content:center;}
+body.mode-desktop{background:#080C08;}
+
+/* MOBILE SHELL */
+#mobile-root{width:100%;max-width:430px;}
+@media(min-width:430px){
+  body.mode-mobile #mobile-root{box-shadow:0 0 80px rgba(0,0,0,.7);}
+}
+
+/* DESKTOP (website) */
+#desktop-root{width:100%;}
+
+/* DEVICE DETECT SCREEN */
+#detect-screen{
+  position:fixed;inset:0;background:#080C08;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;
+  transition:opacity .4s;
+}
+#detect-screen.hidden{opacity:0;pointer-events:none;}
+.detect-logo{
+  font-family:"Cormorant Garamond",serif;
+  font-size:52px;font-weight:300;color:#E8E0D0;
+  letter-spacing:-1px;margin-bottom:8px;
+}
+.detect-logo em{color:#4D9149;font-style:italic;}
+.detect-sub{font-size:13px;color:rgba(232,224,208,.3);font-family:"DM Sans",sans-serif;margin-bottom:48px;letter-spacing:1px;text-transform:uppercase;}
+.detect-spinner{
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid rgba(77,145,73,.2);
+  border-top-color:#4D9149;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.detect-label{font-size:11px;color:rgba(232,224,208,.2);font-family:"DM Sans",sans-serif;margin-top:16px;letter-spacing:.5px;}
+
+/* ROLE PICKER (shown on mobile first time) */
+#role-picker{
+  position:fixed;inset:0;background:#080C08;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;z-index:8888;
+  transition:opacity .3s;
+}
+#role-picker.hidden{opacity:0;pointer-events:none;}
 #back-btn{
   position:fixed;top:68px;left:16px;z-index:500;
   background:rgba(20,30,20,.9);border:1px solid rgba(255,255,255,.1);
@@ -787,43 +948,63 @@ body::before{
   <div class="detect-label" id="detect-label">Загрузка...</div>
 </div>
 
-<!-- ROLE PICKER (mobile) -->
-<div id="role-picker" class="hidden">
-  <div class="rp-logo">Flora<em>Care</em></div>
-  <div class="rp-sub">Выберите раздел</div>
-  <div class="rp-device-badge" id="device-badge">📱 Мобильное устройство</div>
-  <div class="rp-title">Кто вы?</div>
-  <div class="rp-cards">
-    <div class="rp-card" onclick="launchMobileApp('client')">
-      <div class="rp-card-icon">🌿</div>
-      <div>
-        <div class="rp-card-name">Я клиент</div>
-        <div class="rp-card-desc">Мой кабинет, график визитов, отчёты</div>
+<!-- LANDING PAGE -->
+<div id="landing" class="landing hidden">
+  <div class="land-hero">
+    <div class="land-glow"></div>
+    <div class="land-grid"></div>
+    <div class="land-deco">🌿</div>
+    <div class="land-inner">
+      <div class="land-logo">Flora<em>Care</em></div>
+
+      <div class="land-eyebrow">
+        <div class="land-eyebrow-line"></div>
+        <div class="land-eyebrow-text">Уход за растениями · Ташкент</div>
       </div>
-      <div class="rp-card-arrow">›</div>
-    </div>
-    <div class="rp-card" onclick="launchMobileApp('staff')">
-      <div class="rp-card-icon">🔧</div>
-      <div>
-        <div class="rp-card-name">Я сотрудник</div>
-        <div class="rp-card-desc">Садовник или администратор</div>
+
+      <h1 class="land-h1">
+        Ваши растения<br/>
+        в <em>надёжных</em><br/>
+        руках
+      </h1>
+
+      <p class="land-p">
+        Профессиональный уход по подписке. Полив, удобрение, диагностика — фотоотчёт после каждого визита.
+      </p>
+
+      <button class="land-login-btn" onclick="openModal()">
+        Войти в кабинет
+        <span class="land-btn-arr">→</span>
+      </button>
+
+      <div class="land-services">
+        <span class="land-svc-tag">💧 Полив</span>
+        <span class="land-svc-tag">🌿 Удобрение</span>
+        <span class="land-svc-tag">✂️ Обрезка</span>
+        <span class="land-svc-tag">🔬 Диагностика</span>
+        <span class="land-svc-tag">📸 Фотоотчёт</span>
       </div>
-      <div class="rp-card-arrow">›</div>
-    </div>
-    <div class="rp-card" onclick="launchWebsite()">
-      <div class="rp-card-icon">🌐</div>
-      <div>
-        <div class="rp-card-name">Сайт компании</div>
-        <div class="rp-card-desc">О нас, тарифы, контакты</div>
+
+      <div class="land-stats">
+        <div class="land-stat">
+          <div class="land-stat-n">10к+</div>
+          <div class="land-stat-l">Клиентов</div>
+        </div>
+        <div class="land-stat">
+          <div class="land-stat-n">5 лет</div>
+          <div class="land-stat-l">На рынке</div>
+        </div>
+        <div class="land-stat">
+          <div class="land-stat-n">98%</div>
+          <div class="land-stat-l">Довольных</div>
+        </div>
       </div>
-      <div class="rp-card-arrow">›</div>
     </div>
   </div>
-  <div class="rp-version">FloraCare · 2025 · Ташкент</div>
 </div>
 
 <!-- BACK BUTTON (mobile) -->
-<button id="back-btn" onclick="showRolePicker()">‹ Назад</button>
+<button id="back-btn" onclick="showLanding()">‹ Назад</button>
 
 <!-- MOBILE REACT ROOT -->
 <div id="mobile-root" style="display:none"></div>
@@ -1155,7 +1336,7 @@ body::before{
       <!-- Email classic -->
       <div class="field"><label>Email</label><input type="email" id="auth-email" placeholder="example@mail.ru"/></div>
       <div class="field"><label>Пароль</label><input type="password" id="auth-pass" placeholder="••••••••"/></div>
-      <button class="modal-submit" onclick="authStep('success', {name:'Нуриддин', method:'email'})">Войти</button>
+      <button class="modal-submit" onclick="doLogin()">Войти</button>
       <div style="text-align:center;margin-top:14px;">
         <span style="font-size:12px;color:var(--cream-muted);">Нет аккаунта? </span>
         <span style="font-size:12px;color:var(--green-light);cursor:pointer;font-weight:500;" onclick="authStep('reg')">Зарегистрироваться →</span>
@@ -1218,7 +1399,7 @@ body::before{
         <input class="otp-box" maxlength="1" id="o5" oninput="otpCheck()" onkeydown="otpKey(event,this,'o4')"/>
       </div>
       <div class="otp-resend">Не получили код? <span onclick="resendOtp()">Отправить снова</span> <span id="otp-timer"></span></div>
-      <button class="modal-submit" onclick="authStep('success',{name:'Нуриддин',method:'phone'})">Подтвердить</button>
+      <button class="modal-submit" onclick="doOtpLogin()">Подтвердить</button>
     </div>
 
     <!-- REGISTER STEP -->
@@ -1236,7 +1417,7 @@ body::before{
       <div class="field"><label>Телефон</label><input type="tel" placeholder="+998 90 123 45 67"/></div>
       <div class="field"><label>Email</label><input type="email" placeholder="example@mail.ru"/></div>
       <div class="field"><label>Пароль</label><input type="password" placeholder="Минимум 8 символов"/></div>
-      <button class="modal-submit" onclick="authStep('success',{name:'Нуриддин',method:'reg'})">Создать аккаунт</button>
+      <button class="modal-submit" onclick="doRegister()">Создать аккаунт</button>
     </div>
 
     <!-- SUCCESS STEP -->
@@ -1262,6 +1443,28 @@ function openModal(){document.getElementById('modal').style.display='flex'; auth
 function closeModal(){document.getElementById('modal').style.display='none';}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
+// ── LOGIN ROUTING ──
+function doLogin() {
+  const login = (document.getElementById('auth-email')?.value || '').trim();
+  const pass  = (document.getElementById('auth-pass')?.value  || '').trim();
+  if (!login || !pass) { alert('Введите логин и пароль'); return; }
+  authStep('success', {name: login, method: 'email'});
+  setTimeout(() => onLoginSuccess(login), 600);
+}
+
+function doRegister() {
+  const nameEl = document.querySelector('#pane-reg input[type="text"]');
+  const name = nameEl ? nameEl.value.trim() : 'Клиент';
+  authStep('success', {name: name || 'Клиент', method: 'reg'});
+  setTimeout(() => onLoginSuccess('new_client'), 600);
+}
+
+function doOtpLogin() {
+  const phone = document.getElementById('phone-num')?.value || '';
+  authStep('success', {name: phone, method: 'phone'});
+  setTimeout(() => onLoginSuccess('new_client'), 600);
+}
+
 // auth steps
 function authStep(step, data) {
   document.querySelectorAll('.tg-step').forEach(s => s.classList.remove('active'));
@@ -1282,7 +1485,7 @@ function simulateTgAuth() {
   const btn = event.target.closest('.tg-open-btn');
   btn.textContent = '⏳ Ожидаем подтверждения...';
   btn.style.background = '#1a7aa8';
-  setTimeout(() => { authStep('success', {name:'Нуриддин', method:'tg'}); }, 2000);
+  setTimeout(() => { onLoginSuccess('client_tg'); authStep('success', {name:'Нуриддин', method:'tg'}); }, 2000);
 }
 
 // OTP helpers
@@ -4706,85 +4909,105 @@ window.__launchApp = function (appName) {
 
 <script>
 // ═══════════════════════════════════════════════════
-// DEVICE DETECTION & ROUTING
+// ROUTING — auto-detect role from account
 // ═══════════════════════════════════════════════════
+
+// All known accounts (in real app — server returns role after login)
+const ACCOUNT_ROLES = {
+  'maria':   'gardener',
+  'dmitry':  'gardener',
+  'anna':    'gardener',
+  'admin':   'admin',
+  'admin1':  'admin',
+  // Client accounts (any other login = client)
+};
+
 function detectDevice() {
   const ua = navigator.userAgent.toLowerCase();
   const w  = window.innerWidth;
-  
   const isIOS     = /iphone|ipad|ipod/.test(ua);
   const isAndroid = /android/.test(ua);
-  const isSamsung = /samsung|sm-|sgh-|sch-|gt-/.test(ua);
-  const isMobile  = isIOS || isAndroid || w <= 768;
+  const isMobile  = isIOS || isAndroid || w <= 900;
   const isTablet  = (isIOS && !/iphone/.test(ua)) || (isAndroid && w >= 768);
-  const isDesktop = !isMobile || (isTablet && w >= 1024);
-
-  let deviceName = 'Устройство';
-  let deviceIcon = '📱';
-
-  if (isIOS && /iphone/.test(ua)) { deviceName = 'iPhone'; deviceIcon = '📱'; }
-  else if (isIOS) { deviceName = 'iPad'; deviceIcon = '📟'; }
-  else if (isSamsung) { deviceName = 'Samsung'; deviceIcon = '📱'; }
-  else if (isAndroid) { deviceName = 'Android'; deviceIcon = '📱'; }
-  else if (w > 1200) { deviceName = 'Компьютер / Mac'; deviceIcon = '🖥️'; }
-  else if (w > 768) { deviceName = 'Планшет'; deviceIcon = '📟'; }
-
-  return { isMobile: isMobile && !isTablet, isDesktop: isDesktop || isTablet, deviceName, deviceIcon };
+  const isDesktop = (!isMobile) || (isTablet && w >= 1024);
+  return { isMobile: isMobile && !isTablet, isDesktop: isDesktop || isTablet };
 }
 
-function showRolePicker() {
-  // hide mobile app
-  document.getElementById('mobile-root').style.display = 'none';
-  document.getElementById('back-btn').classList.remove('visible');
-  document.getElementById('role-picker').classList.remove('hidden');
+// Called after successful login from modal
+function onLoginSuccess(loginValue) {
+  const role = ACCOUNT_ROLES[loginValue.trim().toLowerCase()] || 'client';
+  closeModal();
+  hideLanding();
+  if (role === 'gardener' || role === 'admin') {
+    launchStaffApp();
+  } else {
+    launchClientApp();
+  }
 }
 
-function launchMobileApp(appName) {
-  document.getElementById('role-picker').classList.add('hidden');
+function hideLanding() {
+  const el = document.getElementById('landing');
+  if (el) { el.classList.add('hidden'); setTimeout(()=>el.remove(), 400); }
   document.getElementById('back-btn').classList.add('visible');
+}
+
+function launchClientApp() {
+  document.body.classList.add('mode-mobile');
   document.getElementById('mobile-root').style.display = 'block';
-  // Wait for Babel to finish compiling, then launch
   const tryLaunch = setInterval(() => {
     if (window.__launchApp) {
       clearInterval(tryLaunch);
-      window.__launchApp(appName);
+      window.__launchApp('client');
     }
-  }, 100);
+  }, 50);
+}
+
+function launchStaffApp() {
+  document.body.classList.add('mode-mobile');
+  document.getElementById('mobile-root').style.display = 'block';
+  const tryLaunch = setInterval(() => {
+    if (window.__launchApp) {
+      clearInterval(tryLaunch);
+      window.__launchApp('staff');
+    }
+  }, 50);
 }
 
 function launchWebsite() {
-  document.getElementById('role-picker').classList.add('hidden');
-  document.getElementById('back-btn').classList.add('visible');
+  hideLanding();
   document.getElementById('desktop-root').style.display = 'block';
   document.body.classList.remove('mode-mobile');
   document.body.classList.add('mode-desktop');
   document.getElementById('website-css').disabled = false;
 }
 
+function showLanding() {
+  document.getElementById('mobile-root').style.display = 'none';
+  document.getElementById('back-btn').classList.remove('visible');
+  const el = document.getElementById('landing');
+  if (el) el.classList.remove('hidden');
+}
+
 // ── INIT ──
 window.addEventListener('load', function() {
-  const { isMobile, isDesktop, deviceName, deviceIcon } = detectDevice();
   const label = document.getElementById('detect-label');
-  label.textContent = deviceIcon + ' ' + deviceName + ' обнаружен';
+  if (label) label.textContent = '🌿 FloraCare загружается...';
 
   setTimeout(() => {
     const screen = document.getElementById('detect-screen');
-    screen.classList.add('hidden');
+    if (screen) { screen.classList.add('hidden'); setTimeout(()=>screen.remove(), 400); }
 
+    const { isDesktop } = detectDevice();
     if (isDesktop) {
-      // Desktop → сразу сайт
+      // Desktop → website
       document.body.classList.add('mode-desktop');
       document.getElementById('desktop-root').style.display = 'block';
-      setTimeout(() => { screen.remove(); }, 400);
     } else {
-      // Mobile → выбор роли
+      // Mobile → landing
       document.body.classList.add('mode-mobile');
-      const badge = document.getElementById('device-badge');
-      badge.textContent = deviceIcon + ' ' + deviceName;
-      document.getElementById('role-picker').classList.remove('hidden');
-      setTimeout(() => { screen.remove(); }, 400);
+      document.getElementById('landing').classList.remove('hidden');
     }
-  }, 1200);
+  }, 800);
 });
 </script>
 
