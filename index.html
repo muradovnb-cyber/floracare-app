@@ -1,0 +1,3589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#080C08"/>
+<title>FloraCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+/* ── UNIVERSAL BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:4px;height:0;}
+::-webkit-scrollbar-thumb{background:#2A3A2A;border-radius:2px;}
+
+/* MODE WRAPPER */
+body{margin:0;padding:0;min-height:100vh;}
+body.mode-mobile{background:#111;display:flex;justify-content:center;}
+body.mode-desktop{background:#080C08;}
+
+/* MOBILE SHELL */
+#mobile-root{width:100%;max-width:430px;}
+@media(min-width:430px){
+  body.mode-mobile #mobile-root{box-shadow:0 0 80px rgba(0,0,0,.7);}
+}
+
+/* DESKTOP (website) */
+#desktop-root{width:100%;}
+
+/* DEVICE DETECT SCREEN */
+#detect-screen{
+  position:fixed;inset:0;background:#080C08;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;
+  transition:opacity .4s;
+}
+#detect-screen.hidden{opacity:0;pointer-events:none;}
+.detect-logo{
+  font-family:"Cormorant Garamond",serif;
+  font-size:52px;font-weight:300;color:#E8E0D0;
+  letter-spacing:-1px;margin-bottom:8px;
+}
+.detect-logo em{color:#4D9149;font-style:italic;}
+.detect-sub{font-size:13px;color:rgba(232,224,208,.3);font-family:"DM Sans",sans-serif;margin-bottom:48px;letter-spacing:1px;text-transform:uppercase;}
+.detect-spinner{
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid rgba(77,145,73,.2);
+  border-top-color:#4D9149;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.detect-label{font-size:11px;color:rgba(232,224,208,.2);font-family:"DM Sans",sans-serif;margin-top:16px;letter-spacing:.5px;}
+
+/* ROLE PICKER (shown on mobile first time) */
+#role-picker{
+  position:fixed;inset:0;background:#080C08;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;z-index:8888;
+  transition:opacity .3s;
+}
+#role-picker.hidden{opacity:0;pointer-events:none;}
+.rp-logo{font-family:"Cormorant Garamond",serif;font-size:40px;font-weight:300;color:#E8E0D0;letter-spacing:-.5px;margin-bottom:6px;text-align:center;}
+.rp-logo em{color:#4D9149;font-style:italic;}
+.rp-sub{font-size:12px;color:rgba(232,224,208,.3);font-family:"DM Sans",sans-serif;margin-bottom:40px;letter-spacing:1px;text-transform:uppercase;text-align:center;}
+.rp-device-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(77,145,73,.1);border:1px solid rgba(77,145,73,.2);
+  color:#7DC97A;font-size:11px;font-family:"DM Sans",sans-serif;font-weight:500;
+  padding:5px 14px;border-radius:30px;margin-bottom:32px;letter-spacing:.3px;
+}
+.rp-title{font-size:14px;font-weight:500;color:rgba(232,224,208,.45);font-family:"DM Sans",sans-serif;margin-bottom:16px;letter-spacing:.5px;text-transform:uppercase;}
+.rp-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;}
+.rp-card{
+  background:#141E14;border:1px solid rgba(255,255,255,.06);
+  border-radius:20px;padding:20px 22px;
+  display:flex;align-items:center;gap:16px;cursor:pointer;
+  transition:border-color .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.rp-card:hover,.rp-card:active{background:#182818;border-color:rgba(77,145,73,.3);}
+.rp-card-icon{font-size:28px;flex-shrink:0;}
+.rp-card-name{font-family:"DM Sans",sans-serif;font-size:16px;font-weight:600;color:#E8E0D0;margin-bottom:3px;}
+.rp-card-desc{font-family:"DM Sans",sans-serif;font-size:12px;color:rgba(232,224,208,.35);font-weight:300;}
+.rp-card-arrow{margin-left:auto;color:rgba(77,145,73,.5);font-size:20px;}
+.rp-version{font-size:10px;color:rgba(232,224,208,.15);font-family:"DM Sans",sans-serif;margin-top:32px;letter-spacing:.5px;}
+
+/* BACK BTN (mobile) */
+#back-btn{
+  position:fixed;top:68px;left:16px;z-index:500;
+  background:rgba(20,30,20,.9);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:6px 14px 6px 10px;
+  display:none;align-items:center;gap:6px;cursor:pointer;
+  font-family:"DM Sans",sans-serif;font-size:12px;color:#7DC97A;font-weight:500;
+  backdrop-filter:blur(10px);
+  -webkit-tap-highlight-color:transparent;
+}
+#back-btn.visible{display:flex;}
+
+/* WEBSITE CSS injected separately */
+</style>
+
+<!-- WEBSITE CSS -->
+<style id="website-css">
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#080C08;
+  --bg2:#0D120D;
+  --bg3:#111811;
+  --surface:#141E14;
+  --border:rgba(255,255,255,0.06);
+  --green:#4E9E4A;
+  --green-light:#7DC97A;
+  --green-dim:rgba(78,158,74,0.15);
+  --cream:#E8E0D0;
+  --cream-dim:rgba(232,224,208,0.45);
+  --cream-muted:rgba(232,224,208,0.25);
+  --gold:#C4973E;
+  --white:#F5F0E8;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--cream);overflow-x:hidden;line-height:1.5;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#2A3A2A;border-radius:2px;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+/* ── GRAIN OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:.4;
+}
+
+/* ── NAV ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 64px;
+  transition:all .4s;
+}
+.nav.scrolled{
+  background:rgba(8,12,8,0.92);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  padding:14px 64px;
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;font-weight:500;color:var(--cream);
+  letter-spacing:.5px;
+}
+.nav-logo em{color:var(--green-light);font-style:italic;}
+.nav-links{display:flex;gap:40px;}
+.nav-links a{
+  font-size:13px;color:var(--cream-dim);font-weight:400;
+  transition:color .2s;letter-spacing:.2px;
+}
+.nav-links a:hover{color:var(--cream);}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-login{
+  font-size:13px;color:var(--cream-dim);font-weight:400;
+  transition:color .2s;background:none;border:none;padding:0;
+}
+.nav-login:hover{color:var(--cream);}
+.nav-cta-btn{
+  padding:9px 22px;border-radius:40px;
+  background:var(--green);color:#050A05;
+  font-size:13px;font-weight:600;border:none;
+  transition:all .2s;
+  box-shadow:0 0 24px rgba(78,158,74,.2);
+}
+.nav-cta-btn:hover{background:var(--green-light);box-shadow:0 0 32px rgba(78,158,74,.35);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  padding:0 64px;
+}
+/* mesh background */
+.hero-mesh{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 80% at 70% 50%, rgba(20,50,20,.6) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 60% at 100% 10%, rgba(78,158,74,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(14,30,14,.8) 0%,transparent 60%);
+}
+.hero-grid-lines{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 70%);
+}
+.hero-deco{
+  position:absolute;right:-80px;top:50%;transform:translateY(-55%);
+  font-size:640px;opacity:.03;line-height:1;
+  pointer-events:none;user-select:none;
+  animation:floatLeaf 12s ease-in-out infinite;
+}
+@keyframes floatLeaf{
+  0%,100%{transform:translateY(-55%) rotate(0)}
+  50%{transform:translateY(-57%) rotate(4deg)}
+}
+.hero-inner{position:relative;z-index:1;max-width:780px;}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-bottom:32px;
+  opacity:0;animation:fadeUp .8s .1s ease forwards;
+}
+.hero-eyebrow-line{width:32px;height:1px;background:var(--green);}
+.hero-eyebrow-text{
+  font-size:11px;font-weight:500;color:var(--green-light);
+  letter-spacing:2px;text-transform:uppercase;
+}
+.hero-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(64px,8vw,112px);
+  font-weight:300;line-height:.95;
+  color:var(--cream);letter-spacing:-2px;
+  margin-bottom:32px;
+  opacity:0;animation:fadeUp .9s .2s ease forwards;
+}
+.hero-h1 em{
+  font-style:italic;color:var(--green-light);
+  display:block;
+}
+.hero-desc{
+  font-size:17px;color:var(--cream-dim);
+  font-weight:300;line-height:1.7;
+  max-width:460px;margin-bottom:48px;
+  opacity:0;animation:fadeUp .9s .3s ease forwards;
+}
+.hero-actions{
+  display:flex;align-items:center;gap:20px;
+  opacity:0;animation:fadeUp .9s .4s ease forwards;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:12px;
+  background:var(--green);color:#050A05;
+  padding:16px 34px;border-radius:50px;
+  font-size:14px;font-weight:600;border:none;
+  transition:all .2s;
+  box-shadow:0 0 40px rgba(78,158,74,.25);
+}
+.btn-primary:hover{background:var(--green-light);transform:translateY(-1px);box-shadow:0 4px 40px rgba(78,158,74,.4);}
+.btn-primary .arr{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(0,0,0,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--cream-dim);font-size:14px;font-weight:400;
+  background:none;border:none;padding:16px 0;
+  transition:color .2s;
+}
+.btn-ghost:hover{color:var(--cream);}
+.btn-ghost::after{content:'→';transition:transform .2s;}
+.btn-ghost:hover::after{transform:translateX(3px);}
+
+/* scroll indicator */
+.hero-scroll{
+  position:absolute;bottom:44px;left:64px;z-index:1;
+  display:flex;align-items:center;gap:12px;
+  opacity:0;animation:fadeUp .8s .7s ease forwards;
+}
+.hero-scroll-track{
+  width:1px;height:48px;background:var(--border);
+  position:relative;overflow:hidden;
+}
+.hero-scroll-dot{
+  position:absolute;top:-8px;left:0;right:0;height:8px;
+  background:var(--green-light);border-radius:1px;
+  animation:scrollDown 2s ease-in-out infinite;
+}
+@keyframes scrollDown{0%{top:-8px}100%{top:56px}}
+.hero-scroll-label{font-size:10px;color:var(--cream-muted);letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-lr;}
+
+/* hero stats */
+.hero-stats{
+  position:absolute;right:64px;bottom:60px;z-index:1;
+  display:flex;flex-direction:column;gap:24px;
+  opacity:0;animation:fadeUp .8s .6s ease forwards;
+}
+.hero-stat{text-align:right;}
+.hero-stat-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:38px;font-weight:300;color:var(--cream);line-height:1;
+}
+.hero-stat-l{font-size:11px;color:var(--cream-muted);font-weight:300;letter-spacing:.5px;}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(28px)}
+  to{opacity:1;transform:none}
+}
+
+/* ── MARQUEE ── */
+.marquee-wrap{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:18px 0;overflow:hidden;
+}
+.marquee-track{
+  display:flex;gap:0;
+  animation:marquee 28s linear infinite;
+  width:max-content;
+}
+.marquee-track:hover{animation-play-state:paused;}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-item{
+  display:flex;align-items:center;gap:16px;
+  padding:0 40px;white-space:nowrap;
+  font-family:'Cormorant Garamond',serif;
+  font-size:16px;font-weight:300;color:var(--cream-dim);
+  letter-spacing:.5px;
+}
+.marquee-dot{width:5px;height:5px;background:var(--green);border-radius:50%;flex-shrink:0;}
+
+/* ── SECTION BASE ── */
+.section{padding:120px 64px;}
+.s-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.s-eyebrow-line{width:28px;height:1px;background:var(--green);}
+.s-eyebrow-text{font-size:11px;font-weight:500;color:var(--green-light);letter-spacing:2px;text-transform:uppercase;}
+.s-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(40px,5vw,64px);
+  font-weight:300;color:var(--cream);
+  line-height:1.05;letter-spacing:-1px;
+  margin-bottom:18px;
+}
+.s-title em{font-style:italic;color:var(--green-light);}
+.s-sub{font-size:16px;color:var(--cream-dim);font-weight:300;line-height:1.7;max-width:520px;}
+
+/* ── SERVICES ── */
+.services-section{background:var(--bg2);}
+.services-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:64px;flex-wrap:wrap;gap:24px;}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.svc{
+  background:var(--surface);
+  padding:40px 36px;position:relative;overflow:hidden;
+  transition:background .25s;cursor:default;
+  border:1px solid var(--border);
+  margin:-1px;
+}
+.svc:hover{background:#182018;}
+.svc::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+  transform:scaleX(0);transition:transform .4s ease;
+}
+.svc:hover::before{transform:scaleX(1);}
+.svc-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;color:var(--green);
+  letter-spacing:2px;margin-bottom:28px;
+  display:block;
+}
+.svc-ico{font-size:32px;margin-bottom:18px;display:block;}
+.svc-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:400;color:var(--cream);
+  margin-bottom:10px;
+}
+.svc-desc{font-size:13px;color:var(--cream-dim);line-height:1.65;font-weight:300;}
+
+/* ── HOW IT WORKS ── */
+.how-section{background:var(--bg);}
+.how-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-top:72px;}
+.how-steps{display:flex;flex-direction:column;}
+.how-step{
+  display:grid;grid-template-columns:48px 1fr;gap:24px;
+  padding:32px 0;border-bottom:1px solid var(--border);
+  cursor:default;transition:opacity .2s;
+}
+.how-step:first-child{padding-top:0;}
+.how-step:last-child{border-bottom:none;}
+.how-step:hover{opacity:.8;}
+.how-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;color:var(--green);letter-spacing:1px;
+  padding-top:6px;
+}
+.how-step-h{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:400;color:var(--cream);
+  margin-bottom:8px;
+}
+.how-step-p{font-size:14px;color:var(--cream-dim);line-height:1.65;font-weight:300;}
+
+/* phone mockup */
+.how-phone{position:sticky;top:120px;}
+.phone-frame{
+  background:var(--bg3);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:44px;padding:12px;
+  box-shadow:0 40px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);
+  max-width:300px;margin:0 auto;
+}
+.phone-inner{
+  background:#0A1A0A;border-radius:34px;
+  overflow:hidden;
+}
+.p-status{
+  background:#0D160D;padding:14px 20px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.p-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:16px;color:#7DC97A;letter-spacing:.3px;
+}
+.p-logo em{font-style:italic;}
+.p-hero-block{
+  background:linear-gradient(145deg,#122012,#1E3420);
+  margin:10px;border-radius:24px;padding:22px;
+  position:relative;overflow:hidden;
+}
+.p-hero-block::after{
+  content:'🌿';position:absolute;right:8px;bottom:-8px;
+  font-size:80px;opacity:.07;pointer-events:none;
+}
+.p-hero-eyebrow{
+  font-size:8px;color:#4E9E4A;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;
+}
+.p-hero-h{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;color:#E8E0D0;font-weight:300;
+  line-height:1.2;margin-bottom:14px;
+}
+.p-hero-h em{color:#7DC97A;font-style:italic;}
+.p-cta-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#4E9E4A;color:#050A05;
+  font-size:9px;font-weight:700;
+  padding:7px 16px;border-radius:30px;
+}
+.p-cards{padding:6px 10px 10px;display:flex;flex-direction:column;gap:6px;}
+.p-card{
+  background:#122012;border:1px solid rgba(255,255,255,.05);
+  border-radius:16px;padding:12px 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.p-card-ico{
+  width:34px;height:34px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.p-card-title{font-size:11px;font-weight:500;color:#C0E0C0;}
+.p-card-sub{font-size:9px;color:#3A6A3A;margin-top:1px;}
+.p-card-badge{
+  margin-left:auto;background:rgba(78,158,74,.15);
+  color:#7DC97A;font-size:8px;font-weight:600;
+  padding:3px 9px;border-radius:12px;flex-shrink:0;
+}
+.p-nav{
+  background:#0D160D;
+  border-top:1px solid rgba(255,255,255,.05);
+  display:flex;justify-content:space-around;
+  padding:10px 0 16px;
+}
+.p-nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:7px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+}
+.p-nav-ic{
+  width:32px;height:32px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.p-nav-ic.on{background:#1A3020;}
+.p-nav-item.on .p-nav-label{color:#4E9E4A;}
+.p-nav-item.off .p-nav-label{color:#2A4A2A;}
+
+/* ── TARIFFS ── */
+.tariffs-section{background:var(--bg2);border-top:1px solid var(--border);}
+.tariffs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px;}
+.tc{
+  border-radius:28px;padding:36px 30px;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+  cursor:pointer;border:1px solid var(--border);
+}
+.tc:hover{transform:translateY(-4px);}
+.tc-a{background:var(--surface);}
+.tc-a:hover{box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.tc-b{
+  background:linear-gradient(145deg,#152415,#1E3620);
+  border-color:rgba(78,158,74,.2);
+}
+.tc-b:hover{box-shadow:0 20px 60px rgba(78,158,74,.15);}
+.tc-c{
+  background:linear-gradient(145deg,#0C1A0C,#142014);
+  border-color:rgba(78,158,74,.1);
+}
+.tc-c:hover{box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.tc-pop-tag{
+  position:absolute;top:22px;right:22px;
+  background:var(--gold);color:#111;
+  font-size:9px;font-weight:600;
+  padding:4px 12px;border-radius:20px;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.tc-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:400;color:var(--cream);
+  margin-bottom:4px;
+}
+.tc-freq{font-size:12px;color:var(--cream-dim);font-weight:300;margin-bottom:24px;}
+.tc-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:52px;font-weight:300;color:var(--cream);
+  line-height:1;margin-bottom:4px;letter-spacing:-1px;
+}
+.tc-mo{font-size:15px;font-weight:300;color:var(--cream-dim);}
+.tc-div{height:1px;background:var(--border);margin:24px 0;}
+.tc-feats{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.tc-feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--cream-dim);font-weight:300;}
+.tc-chk{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;margin-top:1px;
+}
+.tc-a .tc-chk{background:rgba(78,158,74,.15);color:var(--green-light);}
+.tc-b .tc-chk{background:rgba(78,158,74,.2);color:var(--green-light);}
+.tc-c .tc-chk{background:rgba(78,158,74,.12);color:#6AB868;}
+.tc-btn{
+  width:100%;padding:14px;border-radius:40px;border:none;
+  font-size:13px;font-weight:600;letter-spacing:.2px;
+  transition:all .2s;
+}
+.tc-a .tc-btn{background:rgba(255,255,255,.06);color:var(--cream);border:1px solid var(--border);}
+.tc-a .tc-btn:hover{background:rgba(255,255,255,.1);}
+.tc-b .tc-btn{background:var(--green);color:#050A05;box-shadow:0 0 30px rgba(78,158,74,.25);}
+.tc-b .tc-btn:hover{background:var(--green-light);box-shadow:0 0 40px rgba(78,158,74,.4);}
+.tc-c .tc-btn{background:rgba(78,158,74,.12);color:var(--green-light);border:1px solid rgba(78,158,74,.2);}
+.tc-c .tc-btn:hover{background:rgba(78,158,74,.2);}
+
+/* ── SOCIAL PROOF ── */
+.proof-section{background:var(--bg);border-top:1px solid var(--border);}
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:64px;}
+.proof-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;padding:32px;
+  transition:border-color .25s,transform .2s;cursor:default;
+}
+.proof-card:hover{border-color:rgba(78,158,74,.25);transform:translateY(-2px);}
+.proof-stars{
+  display:flex;gap:3px;margin-bottom:20px;
+}
+.proof-star{width:14px;height:14px;color:var(--gold);font-size:13px;}
+.proof-text{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;font-weight:300;color:var(--cream);
+  line-height:1.6;margin-bottom:24px;font-style:italic;
+}
+.proof-text strong{font-style:normal;color:var(--green-light);}
+.proof-author{display:flex;align-items:center;gap:12px;}
+.proof-av{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:500;color:var(--cream);
+  flex-shrink:0;
+}
+.proof-name{font-size:13px;font-weight:500;color:var(--cream);}
+.proof-plan{font-size:11px;color:var(--green-light);margin-top:2px;}
+
+/* ── FULL WIDTH CTA ── */
+.cta-section{
+  background:var(--bg2);
+  padding:140px 64px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  border-top:1px solid var(--border);
+}
+.cta-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 600px 400px at 50% 50%,rgba(78,158,74,.07) 0%,transparent 60%);
+}
+.cta-deco-l{position:absolute;left:-80px;top:50%;transform:translateY(-50%);font-size:400px;opacity:.025;pointer-events:none;}
+.cta-deco-r{position:absolute;right:-80px;top:50%;transform:translateY(-50%) scaleX(-1);font-size:400px;opacity:.025;pointer-events:none;}
+.cta-eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:24px;}
+.cta-h{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(52px,7vw,88px);
+  font-weight:300;color:var(--cream);
+  line-height:1;letter-spacing:-2px;margin-bottom:18px;
+}
+.cta-h em{font-style:italic;color:var(--green-light);}
+.cta-sub{
+  font-size:17px;color:var(--cream-dim);font-weight:300;
+  max-width:440px;margin:0 auto 48px;line-height:1.65;
+}
+.cta-btns{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;}
+
+/* ── FOOTER ── */
+.footer{
+  background:var(--bg);
+  border-top:1px solid var(--border);
+  padding:72px 64px 40px;
+}
+.footer-grid{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
+.footer-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;color:var(--cream);margin-bottom:14px;letter-spacing:.3px;
+}
+.footer-logo em{color:var(--green-light);font-style:italic;}
+.footer-brand-desc{font-size:13px;color:var(--cream-muted);line-height:1.7;font-weight:300;max-width:260px;margin-bottom:24px;}
+.footer-social{display:flex;gap:10px;}
+.footer-social-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:border-color .2s,background .2s;
+}
+.footer-social-btn:hover{background:#1E2E1E;border-color:rgba(78,158,74,.3);}
+.footer-col-title{font-size:10px;font-weight:600;color:var(--cream-muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;}
+.footer-col a{display:block;font-size:13px;color:rgba(232,224,208,.35);margin-bottom:11px;transition:color .2s;}
+.footer-col a:hover{color:var(--cream);}
+.footer-bottom{border-top:1px solid var(--border);padding-top:28px;display:flex;align-items:center;justify-content:space-between;}
+.footer-copy{font-size:12px;color:rgba(232,224,208,.2);}
+.footer-legal{display:flex;gap:24px;}
+.footer-legal a{font-size:12px;color:rgba(232,224,208,.2);transition:color .2s;}
+.footer-legal a:hover{color:rgba(232,224,208,.5);}
+
+/* ── LOGIN MODAL ── */
+.overlay{
+  position:fixed;inset:0;z-index:999;
+  background:rgba(4,8,4,.85);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--bg3);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:28px;padding:44px;
+  width:100%;max-width:420px;position:relative;
+  box-shadow:0 40px 80px rgba(0,0,0,.6);
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.modal-x{
+  position:absolute;top:18px;right:18px;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:none;
+  color:var(--cream-dim);font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.modal-x:hover{background:rgba(255,255,255,.1);}
+.modal-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;color:var(--cream);text-align:center;margin-bottom:4px;
+}
+.modal-logo em{color:var(--green-light);font-style:italic;}
+.modal-tagline{font-size:13px;color:var(--cream-dim);text-align:center;margin-bottom:32px;font-weight:300;}
+.modal-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:28px;background:var(--bg2);border-radius:16px;padding:4px;}
+.m-tab{
+  padding:10px;border-radius:12px;border:none;
+  font-size:13px;font-weight:500;transition:all .2s;
+}
+.m-tab-on{background:var(--surface);color:var(--cream);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.m-tab-off{background:transparent;color:var(--cream-muted);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:10px;font-weight:600;color:var(--cream-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.field input{
+  width:100%;background:var(--bg2);
+  border:1px solid var(--border);border-radius:14px;
+  padding:14px 18px;font-size:15px;color:var(--cream);
+  outline:none;transition:border-color .2s;
+}
+.field input:focus{border-color:var(--green);}
+.field input::placeholder{color:rgba(232,224,208,.18);}
+.modal-submit{
+  width:100%;padding:15px;border-radius:40px;border:none;
+  background:var(--green);color:#050A05;
+  font-size:14px;font-weight:600;margin-top:4px;
+  transition:all .2s;
+  box-shadow:0 0 30px rgba(78,158,74,.2);
+}
+.modal-submit:hover{background:var(--green-light);box-shadow:0 0 40px rgba(78,158,74,.35);}
+.modal-or{display:flex;align-items:center;gap:14px;margin:20px 0;font-size:12px;color:var(--cream-muted);}
+.modal-or::before,.modal-or::after{content:'';flex:1;height:1px;background:var(--border);}
+.modal-tg{
+  width:100%;padding:15px;border-radius:40px;
+  background:#229ED9;color:#fff;
+  font-size:14px;font-weight:600;border:none;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:opacity .2s,transform .15s;cursor:pointer;
+  box-shadow:0 0 30px rgba(34,158,217,.25);
+}
+.modal-tg:hover{opacity:.88;transform:translateY(-1px);}
+.modal-tg .tg-icon{font-size:18px;}
+.modal-tg-phone{
+  width:100%;padding:15px;border-radius:40px;
+  background:rgba(34,158,217,.12);color:#229ED9;
+  font-size:14px;font-weight:600;border:1.5px solid rgba(34,158,217,.3);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .2s;cursor:pointer;margin-top:10px;
+}
+.modal-tg-phone:hover{background:rgba(34,158,217,.2);}
+.tg-step{display:none;animation:fadeUp .3s ease;}
+.tg-step.active{display:block;}
+.tg-back{background:none;border:none;color:var(--cream-muted);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:20px;padding:0;transition:color .2s;}
+.tg-back:hover{color:var(--cream);}
+.tg-big-icon{font-size:52px;text-align:center;margin-bottom:12px;}
+.tg-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--cream);text-align:center;margin-bottom:6px;}
+.tg-desc{font-size:13px;color:var(--cream-dim);text-align:center;line-height:1.6;font-weight:300;margin-bottom:24px;}
+.tg-desc strong{color:#229ED9;}
+.phone-input-wrap{position:relative;margin-bottom:16px;}
+.phone-flag{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none;}
+.phone-code{position:absolute;left:42px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--cream);font-weight:500;pointer-events:none;}
+.phone-field{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px 14px 84px;font-size:15px;color:var(--cream);outline:none;transition:border-color .2s;}
+.phone-field:focus{border-color:#229ED9;}
+.phone-field::placeholder{color:rgba(232,224,208,.18);}
+.otp-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px;}
+.otp-box{width:48px;height:58px;border-radius:14px;background:var(--bg2);border:1.5px solid var(--border);text-align:center;font-size:22px;font-weight:600;color:var(--cream);outline:none;transition:border-color .2s;}
+.otp-box:focus{border-color:#229ED9;}
+.otp-resend{font-size:12px;color:var(--cream-muted);text-align:center;margin-bottom:20px;}
+.otp-resend span{color:#229ED9;cursor:pointer;font-weight:500;}
+.tg-widget-wrap{background:rgba(34,158,217,.06);border:1px solid rgba(34,158,217,.15);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;}
+.tg-widget-title{font-size:13px;color:var(--cream-dim);margin-bottom:14px;font-weight:300;line-height:1.5;}
+.tg-widget-title strong{color:#229ED9;}
+.tg-open-btn{display:inline-flex;align-items:center;gap:8px;background:#229ED9;color:#fff;padding:12px 24px;border-radius:30px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:opacity .2s;}
+.tg-open-btn:hover{opacity:.88;}
+.tg-bot-name{font-size:11px;color:var(--cream-muted);margin-top:10px;}
+.tg-success{text-align:center;padding:10px 0;}
+.tg-success-icon{font-size:56px;margin-bottom:16px;}
+.tg-success-name{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--cream);margin-bottom:6px;}
+.tg-success-sub{font-size:13px;color:var(--cream-dim);font-weight:300;margin-bottom:24px;}
+.tg-continue-btn{width:100%;padding:15px;border-radius:40px;border:none;background:var(--green);color:#050A05;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 0 30px rgba(78,158,74,.2);}
+.tg-continue-btn:hover{background:var(--green-light);}
+.divider-text{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:12px;color:var(--cream-muted);}
+.divider-text::before,.divider-text::after{content:'';flex:1;height:1px;background:var(--border);}
+.modal-hint{margin-top:16px;background:rgba(34,158,217,.06);border:1px solid rgba(34,158,217,.12);border-radius:12px;padding:12px 16px;font-size:12px;color:#229ED9;line-height:1.6;}
+.modal-hint strong{color:#229ED9;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .nav,.hero,.section,.cta-section,.footer{padding-left:32px;padding-right:32px;}
+  .hero-stats{right:32px;}
+  .hero-scroll{left:32px;}
+  .services-grid,.tariffs-grid,.proof-grid{grid-template-columns:1fr 1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  .nav{padding:14px 20px;}
+  .nav.scrolled{padding:12px 20px;}
+  .nav-links,.nav-login{display:none;}
+  .hero{padding:90px 20px 80px;min-height:100svh;}
+  .hero-stats{display:none;}
+  .hero-scroll{left:20px;}
+  .hero-h1{font-size:52px;letter-spacing:-1.5px;}
+  .section,.cta-section,.footer{padding:72px 20px;}
+  .services-grid,.tariffs-grid,.proof-grid{grid-template-columns:1fr;}
+  .how-layout{grid-template-columns:1fr;}
+  .how-phone{display:none;}
+  .footer-grid{grid-template-columns:1fr;}
+  .cta-h{font-size:48px;}
+}
+
+</style>
+
+</head>
+<body>
+
+<!-- DETECT SCREEN -->
+<div id="detect-screen">
+  <div class="detect-logo">Flora<em>Care</em></div>
+  <div class="detect-sub">Определение устройства...</div>
+  <div class="detect-spinner"></div>
+  <div class="detect-label" id="detect-label">Загрузка...</div>
+</div>
+
+<!-- ROLE PICKER (mobile) -->
+<div id="role-picker" class="hidden">
+  <div class="rp-logo">Flora<em>Care</em></div>
+  <div class="rp-sub">Выберите раздел</div>
+  <div class="rp-device-badge" id="device-badge">📱 Мобильное устройство</div>
+  <div class="rp-title">Кто вы?</div>
+  <div class="rp-cards">
+    <div class="rp-card" onclick="launchMobileApp('client')">
+      <div class="rp-card-icon">🌿</div>
+      <div>
+        <div class="rp-card-name">Я клиент</div>
+        <div class="rp-card-desc">Мой кабинет, график визитов, отчёты</div>
+      </div>
+      <div class="rp-card-arrow">›</div>
+    </div>
+    <div class="rp-card" onclick="launchMobileApp('staff')">
+      <div class="rp-card-icon">🔧</div>
+      <div>
+        <div class="rp-card-name">Я сотрудник</div>
+        <div class="rp-card-desc">Садовник или администратор</div>
+      </div>
+      <div class="rp-card-arrow">›</div>
+    </div>
+    <div class="rp-card" onclick="launchWebsite()">
+      <div class="rp-card-icon">🌐</div>
+      <div>
+        <div class="rp-card-name">Сайт компании</div>
+        <div class="rp-card-desc">О нас, тарифы, контакты</div>
+      </div>
+      <div class="rp-card-arrow">›</div>
+    </div>
+  </div>
+  <div class="rp-version">FloraCare · 2025 · Ташкент</div>
+</div>
+
+<!-- BACK BUTTON (mobile) -->
+<button id="back-btn" onclick="showRolePicker()">‹ Назад</button>
+
+<!-- MOBILE REACT ROOT -->
+<div id="mobile-root" style="display:none"></div>
+
+<!-- DESKTOP WEBSITE ROOT -->
+<div id="desktop-root" style="display:none">
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">Flora<em>Care</em></a>
+  <div class="nav-links">
+    <a href="#services">Услуги</a>
+    <a href="#how">Как работает</a>
+    <a href="#tariffs">Тарифы</a>
+    <a href="#reviews">Отзывы</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-login" onclick="openModal()">Войти</button>
+    <button class="nav-cta-btn" onclick="openModal()">Начать →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-mesh"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-deco">🌿</div>
+
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <div class="hero-eyebrow-text">Уход за растениями по подписке</div>
+    </div>
+    <h1 class="hero-h1">
+      Ваши<br/>растения<br/><em>процветают</em>
+    </h1>
+    <p class="hero-desc">FloraCare — команда профессиональных садовников, которые ухаживают за вашими растениями дома и в офисе. Подписка. Фотоотчёт. Результат.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="openModal()">
+        Подключиться сейчас
+        <span class="arr">→</span>
+      </button>
+      <a href="#how" class="btn-ghost">Как это работает</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="hero-scroll-track"><div class="hero-scroll-dot"></div></div>
+    <div class="hero-scroll-label">Scroll</div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-n">10 000+</div><div class="hero-stat-l">Клиентов</div></div>
+    <div class="hero-stat"><div class="hero-stat-n">98%</div><div class="hero-stat-l">Довольны</div></div>
+    <div class="hero-stat"><div class="hero-stat-n">47 000</div><div class="hero-stat-l">Визитов</div></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item"><div class="marquee-dot"></div>Профессиональный уход</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Фотоотчёт после визита</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Личный кабинет</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>3 тарифа</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>10 000+ клиентов</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Магазин растений</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Диагностика болезней</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Профессиональный уход</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Фотоотчёт после визита</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Личный кабинет</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>3 тарифа</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>10 000+ клиентов</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Магазин растений</div>
+    <div class="marquee-item"><div class="marquee-dot"></div>Диагностика болезней</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="section services-section" id="services">
+  <div class="services-header">
+    <div>
+      <div class="s-eyebrow"><div class="s-eyebrow-line"></div><div class="s-eyebrow-text">Что мы делаем</div></div>
+      <h2 class="s-title">Полный комплекс<br/><em>ухода</em></h2>
+    </div>
+    <p class="s-sub">Всё необходимое для здоровья и красоты ваших растений — от базового полива до диагностики болезней.</p>
+  </div>
+  <div class="services-grid" id="svcs">
+    <div class="svc reveal"><span class="svc-num">01</span><span class="svc-ico">💧</span><div class="svc-name">Полив</div><div class="svc-desc">Индивидуальный режим для каждого растения с учётом вида, сезона и условий содержания.</div></div>
+    <div class="svc reveal"><span class="svc-num">02</span><span class="svc-ico">🌿</span><div class="svc-name">Удобрение</div><div class="svc-desc">Профессиональный подбор питания по сезону, виду и текущему состоянию растения.</div></div>
+    <div class="svc reveal"><span class="svc-num">03</span><span class="svc-ico">✂️</span><div class="svc-name">Обрезка</div><div class="svc-desc">Формирование кроны и санитарная обрезка для здорового роста и эстетического вида.</div></div>
+    <div class="svc reveal"><span class="svc-num">04</span><span class="svc-ico">🪴</span><div class="svc-name">Пересадка</div><div class="svc-desc">В правильный горшок с подходящим грунтом — в нужное время года.</div></div>
+    <div class="svc reveal"><span class="svc-num">05</span><span class="svc-ico">🔬</span><div class="svc-name">Диагностика</div><div class="svc-desc">Раннее выявление болезней, вредителей и дефицита питательных веществ.</div></div>
+    <div class="svc reveal"><span class="svc-num">06</span><span class="svc-ico">📸</span><div class="svc-name">Фотоотчёт</div><div class="svc-desc">После каждого визита — подробный отчёт с фото и рекомендациями прямо в приложение.</div></div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="section how-section" id="how">
+  <div class="s-eyebrow"><div class="s-eyebrow-line"></div><div class="s-eyebrow-text">Как это работает</div></div>
+  <h2 class="s-title">Четыре шага<br/>до <em>результата</em></h2>
+  <div class="how-layout">
+    <div class="how-steps">
+      <div class="how-step reveal"><div class="how-n">01</div><div><div class="how-step-h">Выберите тариф</div><div class="how-step-p">Лайт, Стандарт или Макс — от 1 до 4 визитов в месяц. Подходит для квартиры, дома, офиса или кафе.</div></div></div>
+      <div class="how-step reveal"><div class="how-n">02</div><div><div class="how-step-h">Согласуем расписание</div><div class="how-step-p">Менеджер свяжется и составит удобное расписание визитов. Вы выбираете удобное время.</div></div></div>
+      <div class="how-step reveal"><div class="how-n">03</div><div><div class="how-step-h">Специалист приедет</div><div class="how-step-p">Наш сертифицированный садовник выполнит все работы по уходу профессиональным оборудованием.</div></div></div>
+      <div class="how-step reveal"><div class="how-n">04</div><div><div class="how-step-h">Получите фотоотчёт</div><div class="how-step-p">Подробный отчёт с фото и рекомендациями — прямо в приложении, сразу после визита.</div></div></div>
+    </div>
+    <div class="how-phone">
+      <div class="phone-frame">
+        <div class="phone-inner">
+          <div class="p-status">
+            <div class="p-logo">Flora<em>Care</em></div>
+            <span style="font-size:15px">🔔</span>
+          </div>
+          <div style="padding:8px 8px 0">
+            <div class="p-hero-block">
+              <div class="p-hero-eyebrow">Следующий визит</div>
+              <div class="p-hero-h">Ваши растения<br/>в <em>надёжных</em> руках</div>
+              <div class="p-cta-pill">Смотреть график <span>→</span></div>
+            </div>
+          </div>
+          <div class="p-cards">
+            <div class="p-card">
+              <div class="p-card-ico" style="background:#152415">📅</div>
+              <div>
+                <div class="p-card-title">15 мая · 10:00</div>
+                <div class="p-card-sub">Полив и осмотр · Мария К.</div>
+              </div>
+              <div class="p-card-badge">Скоро</div>
+            </div>
+            <div class="p-card">
+              <div class="p-card-ico" style="background:#151520">📸</div>
+              <div>
+                <div class="p-card-title">Новый фотоотчёт</div>
+                <div class="p-card-sub">4 фото · 17 апреля</div>
+              </div>
+              <div class="p-card-badge">Новый</div>
+            </div>
+            <div class="p-card">
+              <div class="p-card-ico" style="background:#201515">💳</div>
+              <div>
+                <div class="p-card-title">Июнь 2025</div>
+                <div class="p-card-sub">3 490 ₽ · 1 июня</div>
+              </div>
+              <div style="margin-left:auto;background:rgba(201,151,62,.12);color:#C4973E;font-size:8px;font-weight:600;padding:3px 9px;border-radius:12px;flex-shrink:0;">Скоро</div>
+            </div>
+          </div>
+          <div class="p-nav">
+            <div class="p-nav-item on">
+              <div class="p-nav-ic on">🏠</div>
+              <div class="p-nav-label" style="color:#4E9E4A;">Главная</div>
+            </div>
+            <div class="p-nav-item off">
+              <div class="p-nav-ic">⭐</div>
+              <div class="p-nav-label" style="color:#2A4A2A;">Тарифы</div>
+            </div>
+            <div class="p-nav-item off">
+              <div class="p-nav-ic">🛍</div>
+              <div class="p-nav-label" style="color:#2A4A2A;">Магазин</div>
+            </div>
+            <div class="p-nav-item off">
+              <div class="p-nav-ic">👤</div>
+              <div class="p-nav-label" style="color:#2A4A2A;">Кабинет</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFFS -->
+<section class="section tariffs-section" id="tariffs">
+  <div class="s-eyebrow"><div class="s-eyebrow-line"></div><div class="s-eyebrow-text">Тарифы</div></div>
+  <h2 class="s-title">Выберите свой<br/><em>план ухода</em></h2>
+  <p class="s-sub">Первый месяц — скидка 20% при онлайн-оплате. Отменить можно в любое время.</p>
+  <div class="tariffs-grid">
+    <div class="tc tc-a reveal">
+      <div class="tc-name">Лайт</div>
+      <div class="tc-freq">1 визит в месяц · до 5 растений</div>
+      <div class="tc-price">1 990 <span class="tc-mo">₽/мес</span></div>
+      <div class="tc-div"></div>
+      <div class="tc-feats">
+        <div class="tc-feat"><div class="tc-chk">✓</div>Осмотр растений</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Базовый полив</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Консультация</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Фотоотчёт</div>
+      </div>
+      <button class="tc-btn" onclick="openModal()">Подключить Лайт</button>
+    </div>
+    <div class="tc tc-b reveal">
+      <div class="tc-pop-tag">Популярный</div>
+      <div class="tc-name">Стандарт</div>
+      <div class="tc-freq">2 визита в месяц · до 15 растений</div>
+      <div class="tc-price">3 490 <span class="tc-mo">₽/мес</span></div>
+      <div class="tc-div"></div>
+      <div class="tc-feats">
+        <div class="tc-feat"><div class="tc-chk">✓</div>Осмотр и диагностика</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Полив и удобрение</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Пересадка при необходимости</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Консультация 24/7</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Фотоотчёт</div>
+      </div>
+      <button class="tc-btn" onclick="openModal()">Подключить Стандарт</button>
+    </div>
+    <div class="tc tc-c reveal">
+      <div class="tc-name">Макс</div>
+      <div class="tc-freq">4 визита в месяц · без ограничений</div>
+      <div class="tc-price">5 990 <span class="tc-mo">₽/мес</span></div>
+      <div class="tc-div"></div>
+      <div class="tc-feats">
+        <div class="tc-feat"><div class="tc-chk">✓</div>Полный уход и мониторинг</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Пересадка включена</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Лечение болезней</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Персональный агроном</div>
+        <div class="tc-feat"><div class="tc-chk">✓</div>Приоритетный фотоотчёт</div>
+      </div>
+      <button class="tc-btn" onclick="openModal()">Подключить Макс</button>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section proof-section" id="reviews">
+  <div class="s-eyebrow"><div class="s-eyebrow-line"></div><div class="s-eyebrow-text">Отзывы</div></div>
+  <h2 class="s-title">Нам доверяют<br/><em>10 000+</em> клиентов</h2>
+  <div class="proof-grid">
+    <div class="proof-card reveal">
+      <div class="proof-stars">★★★★★</div>
+      <div class="proof-text">«После каждого визита приходит <strong>подробный фотоотчёт</strong> — видно как чувствует себя каждое растение. Наконец-то спокоен за своих зелёных питомцев.»</div>
+      <div class="proof-author"><div class="proof-av" style="background:#1A3020">АП</div><div><div class="proof-name">Алексей Петров</div><div class="proof-plan">Тариф Стандарт · Москва</div></div></div>
+    </div>
+    <div class="proof-card reveal">
+      <div class="proof-stars">★★★★★</div>
+      <div class="proof-text">«Мария — <strong>настоящий профессионал</strong>. Monstera расцвела буквально за месяц. До FloraCare я уже была готова её выбросить. Теперь советую всем!»</div>
+      <div class="proof-author"><div class="proof-av" style="background:#1A2040">ЕС</div><div><div class="proof-name">Елена Смирнова</div><div class="proof-plan">Тариф Макс · Санкт-Петербург</div></div></div>
+    </div>
+    <div class="proof-card reveal">
+      <div class="proof-stars">★★★★★</div>
+      <div class="proof-text">«Подключили для нашего офиса — 45 растений. <strong>Коллеги в восторге</strong>, гости замечают разницу. Приложение удобное, всегда знаем что происходит.»</div>
+      <div class="proof-author"><div class="proof-av" style="background:#2A1A10">ЗО</div><div><div class="proof-name">ООО «Зелёный офис»</div><div class="proof-plan">Тариф Макс · Корпоративный</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="cta-deco-l">🌿</div>
+  <div class="cta-deco-r">🌿</div>
+  <div class="cta-eyebrow">
+    <div class="s-eyebrow-line"></div>
+    <div class="s-eyebrow-text">Начните сегодня</div>
+  </div>
+  <h2 class="cta-h">Первый месяц<br/>со скидкой <em>20%</em></h2>
+  <p class="cta-sub">Подключитесь сейчас — специалист приедет уже на этой неделе. Отменить можно в любое время.</p>
+  <div class="cta-btns">
+    <button class="btn-primary" onclick="openModal()" style="font-size:15px;padding:18px 40px">
+      Подключиться со скидкой
+      <span class="arr" style="width:30px;height:30px">→</span>
+    </button>
+    <a href="tel:+78001234567" class="btn-ghost" style="font-size:15px">📞 +7 800 123-45-67</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Flora<em>Care</em></div>
+      <p class="footer-brand-desc">Профессиональный уход за растениями по подписке. Работаем с 2020 года. Более 10 000 довольных клиентов по всей России.</p>
+      <div class="footer-social">
+        <a href="#" class="footer-social-btn">📱</a>
+        <a href="#" class="footer-social-btn">✈️</a>
+        <a href="#" class="footer-social-btn">📸</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Компания</div>
+      <a href="#">О нас</a>
+      <a href="#">Команда</a>
+      <a href="#">Вакансии</a>
+      <a href="#">Блог</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Услуги</div>
+      <a href="#">Полив</a>
+      <a href="#">Удобрение</a>
+      <a href="#">Пересадка</a>
+      <a href="#">Диагностика</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Контакты</div>
+      <a href="tel:+78001234567">+7 800 123-45-67</a>
+      <a href="mailto:hi@floracare.ru">hi@floracare.ru</a>
+      <a href="#">Telegram</a>
+      <a href="#">Instagram</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 FloraCare. Все права защищены.</div>
+    <div class="footer-legal">
+      <a href="#">Конфиденциальность</a>
+      <a href="#">Оферта</a>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" style="padding:36px;max-height:90vh;overflow-y:auto;">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div id="auth-main" class="tg-step active">
+      <div class="modal-logo">Flora<em>Care</em></div>
+      <div class="modal-tagline">Войдите или зарегистрируйтесь</div>
+      <!-- Telegram primary -->
+      <button class="modal-tg" onclick="authStep('tg-app')">
+        <span class="tg-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.246l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.83.947-.001.001-.001.002-.002.003-.001 0-.001 0 0 0l-.53.363z"/></svg>
+        </span>
+        Войти через Telegram
+      </button>
+      <!-- Phone number -->
+      <button class="modal-tg-phone" onclick="authStep('phone-entry')">
+        📱 &nbsp;Войти по номеру телефона
+      </button>
+      <div class="divider-text">или</div>
+      <!-- Email classic -->
+      <div class="field"><label>Email</label><input type="email" id="auth-email" placeholder="example@mail.ru"/></div>
+      <div class="field"><label>Пароль</label><input type="password" id="auth-pass" placeholder="••••••••"/></div>
+      <button class="modal-submit" onclick="authStep('success', {name:'Нуриддин', method:'email'})">Войти</button>
+      <div style="text-align:center;margin-top:14px;">
+        <span style="font-size:12px;color:var(--cream-muted);">Нет аккаунта? </span>
+        <span style="font-size:12px;color:var(--green-light);cursor:pointer;font-weight:500;" onclick="authStep('reg')">Зарегистрироваться →</span>
+      </div>
+    </div>
+
+    <!-- TG APP STEP -->
+    <div id="auth-tg-app" class="tg-step">
+      <button class="tg-back" onclick="authStep('main')">← Назад</button>
+      <div class="tg-big-icon">✈️</div>
+      <div class="tg-title">Войти через Telegram</div>
+      <div class="tg-desc">Нажмите кнопку ниже — откроется Telegram.<br/>Бот <strong>@FloraCareBot</strong> пришлёт вам код подтверждения.</div>
+      <div class="tg-widget-wrap">
+        <div class="tg-widget-title">Нажмите кнопку и подтвердите в Telegram — это займёт 10 секунд</div>
+        <button class="tg-open-btn" onclick="simulateTgAuth()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.246l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.83.947l-.53.363z"/></svg>
+          Открыть Telegram
+        </button>
+        <div class="tg-bot-name">@FloraCareBot</div>
+      </div>
+      <div class="modal-hint">
+        <strong>Как это работает:</strong> Telegram подтверждает вашу личность без пароля. Безопасно и быстро. Ваш аккаунт создаётся автоматически.
+      </div>
+    </div>
+
+    <!-- PHONE ENTRY STEP -->
+    <div id="auth-phone-entry" class="tg-step">
+      <button class="tg-back" onclick="authStep('main')">← Назад</button>
+      <div class="tg-big-icon">📱</div>
+      <div class="tg-title">Номер телефона</div>
+      <div class="tg-desc">Введите номер — мы отправим код<br/>в SMS или через <strong>Telegram</strong></div>
+      <div class="phone-input-wrap">
+        <div class="phone-flag">🇺🇿</div>
+        <div class="phone-code">+998</div>
+        <input class="phone-field" type="tel" id="phone-num" placeholder="90 123 45 67" maxlength="12"/>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="modal-tg" style="flex:1;padding:12px;" onclick="authStep('otp')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.246l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.83.947l-.53.363z"/></svg>
+          Telegram
+        </button>
+        <button class="modal-tg-phone" style="flex:1;padding:12px;margin-top:0;" onclick="authStep('otp')">
+          💬 SMS
+        </button>
+      </div>
+      <div class="modal-hint"><strong>Совет:</strong> Если у вас есть Telegram, код придёт туда мгновенно и бесплатно.</div>
+    </div>
+
+    <!-- OTP STEP -->
+    <div id="auth-otp" class="tg-step">
+      <button class="tg-back" onclick="authStep('phone-entry')">← Назад</button>
+      <div class="tg-big-icon">🔐</div>
+      <div class="tg-title">Код подтверждения</div>
+      <div class="tg-desc" id="otp-desc">Введите 5-значный код,<br/>отправленный на <strong>+998 90 ••• ••67</strong></div>
+      <div class="otp-row">
+        <input class="otp-box" maxlength="1" id="o1" oninput="otpNext(this,'o2')" onkeydown="otpKey(event,this,'')"/>
+        <input class="otp-box" maxlength="1" id="o2" oninput="otpNext(this,'o3')" onkeydown="otpKey(event,this,'o1')"/>
+        <input class="otp-box" maxlength="1" id="o3" oninput="otpNext(this,'o4')" onkeydown="otpKey(event,this,'o2')"/>
+        <input class="otp-box" maxlength="1" id="o4" oninput="otpNext(this,'o5')" onkeydown="otpKey(event,this,'o3')"/>
+        <input class="otp-box" maxlength="1" id="o5" oninput="otpCheck()" onkeydown="otpKey(event,this,'o4')"/>
+      </div>
+      <div class="otp-resend">Не получили код? <span onclick="resendOtp()">Отправить снова</span> <span id="otp-timer"></span></div>
+      <button class="modal-submit" onclick="authStep('success',{name:'Нуриддин',method:'phone'})">Подтвердить</button>
+    </div>
+
+    <!-- REGISTER STEP -->
+    <div id="auth-reg" class="tg-step">
+      <button class="tg-back" onclick="authStep('main')">← Назад</button>
+      <div class="tg-title" style="text-align:center;margin-bottom:6px;">Регистрация</div>
+      <div class="tg-desc">Создайте аккаунт FloraCare</div>
+      <button class="modal-tg" onclick="authStep('tg-app')" style="margin-bottom:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.246l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.83.947l-.53.363z"/></svg>
+        Зарегистрироваться через Telegram
+      </button>
+      <button class="modal-tg-phone" onclick="authStep('phone-entry')">📱 Через номер телефона</button>
+      <div class="divider-text">или вручную</div>
+      <div class="field"><label>Имя и фамилия</label><input type="text" placeholder="Нуриддин Хасанов"/></div>
+      <div class="field"><label>Телефон</label><input type="tel" placeholder="+998 90 123 45 67"/></div>
+      <div class="field"><label>Email</label><input type="email" placeholder="example@mail.ru"/></div>
+      <div class="field"><label>Пароль</label><input type="password" placeholder="Минимум 8 символов"/></div>
+      <button class="modal-submit" onclick="authStep('success',{name:'Нуриддин',method:'reg'})">Создать аккаунт</button>
+    </div>
+
+    <!-- SUCCESS STEP -->
+    <div id="auth-success" class="tg-step">
+      <div class="tg-success">
+        <div class="tg-success-icon">🎉</div>
+        <div class="tg-success-name" id="success-name">Добро пожаловать!</div>
+        <div class="tg-success-sub" id="success-sub">Вы успешно вошли в FloraCare</div>
+        <button class="tg-continue-btn" onclick="closeModal()">Перейти в кабинет →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// nav scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// modal
+function openModal(){document.getElementById('modal').style.display='flex'; authStep('main');}
+function closeModal(){document.getElementById('modal').style.display='none';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// auth steps
+function authStep(step, data) {
+  document.querySelectorAll('.tg-step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('auth-' + step);
+  if (el) {
+    el.classList.add('active');
+  }
+  if (step === 'success' && data) {
+    const methods = {email:'через Email',phone:'через номер телефона',reg:'аккаунт создан',tg:'через Telegram'};
+    document.getElementById('success-name').textContent = 'Добро пожаловать, ' + data.name + '!';
+    document.getElementById('success-sub').textContent = 'Вход выполнен ' + (methods[data.method]||'');
+  }
+  if (step === 'otp') startOtpTimer();
+}
+
+// TG auth simulation
+function simulateTgAuth() {
+  const btn = event.target.closest('.tg-open-btn');
+  btn.textContent = '⏳ Ожидаем подтверждения...';
+  btn.style.background = '#1a7aa8';
+  setTimeout(() => { authStep('success', {name:'Нуриддин', method:'tg'}); }, 2000);
+}
+
+// OTP helpers
+function otpNext(el, nextId) {
+  if (el.value && nextId) document.getElementById(nextId).focus();
+}
+function otpKey(e, el, prevId) {
+  if (e.key === 'Backspace' && !el.value && prevId) document.getElementById(prevId).focus();
+}
+function otpCheck() {
+  const code = ['o1','o2','o3','o4','o5'].map(id => document.getElementById(id).value).join('');
+  if (code.length === 5) {
+    ['o1','o2','o3','o4','o5'].forEach(id => {
+      document.getElementById(id).style.borderColor = '#4D9149';
+    });
+  }
+}
+
+let otpInterval;
+function startOtpTimer() {
+  clearInterval(otpInterval);
+  let sec = 60;
+  const el = document.getElementById('otp-timer');
+  el.textContent = '(через ' + sec + ' сек)';
+  otpInterval = setInterval(() => {
+    sec--;
+    el.textContent = sec > 0 ? '(через ' + sec + ' сек)' : '';
+    if (sec <= 0) clearInterval(otpInterval);
+  }, 1000);
+}
+function resendOtp() { startOtpTimer(); }
+
+// nav scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// modal
+function openModal(){document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// tabs
+function switchTab(t){
+  const isLogin=t==='login';
+  document.getElementById('pane-login').style.display=isLogin?'block':'none';
+  document.getElementById('pane-reg').style.display=isLogin?'none':'block';
+  document.getElementById('tab-login-btn').className='m-tab '+(isLogin?'m-tab-on':'m-tab-off');
+  document.getElementById('tab-reg-btn').className='m-tab '+(isLogin?'m-tab-off':'m-tab-on');
+}
+
+// scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity='1';
+      e.target.style.transform='none';
+      obs.unobserve(e.target);
+    }
+  });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+
+document.querySelectorAll('.reveal').forEach((el,i)=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(32px)';
+  el.style.transition=`opacity .6s ${(i%3)*.1}s ease, transform .6s ${(i%3)*.1}s ease`;
+  obs.observe(el);
+});
+</script>
+
+</div>
+
+<!-- REACT APPS -->
+<script type="text/babel" data-presets="react">
+// ═══════════════════════════════════════════════════
+// CLIENT APP
+// ═══════════════════════════════════════════════════
+
+
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:0;height:0;}
+body{background:#111;font-family:'DM Sans',sans-serif;}
+button,input,select,textarea{font-family:'DM Sans',sans-serif;}
+
+.shell{max-width:390px;margin:0 auto;min-height:100vh;background:#F0EBE1;position:relative;overflow:hidden;}
+
+/* ── ONBOARDING ── */
+.ob-wrap{min-height:100vh;display:flex;flex-direction:column;background:#F0EBE1;}
+.ob-slide{flex:1;display:flex;flex-direction:column;padding:0;}
+.ob-visual{height:340px;position:relative;overflow:hidden;flex-shrink:0;}
+.ob-visual-bg{position:absolute;inset:0;}
+.ob-visual-emoji{position:absolute;font-size:200px;opacity:.12;bottom:-30px;right:-20px;transform:rotate(15deg);pointer-events:none;user-select:none;line-height:1;}
+.ob-visual-content{position:absolute;inset:0;display:flex;align-items:flex-end;padding:28px;}
+.ob-visual-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:500;padding:5px 13px;border-radius:40px;letter-spacing:.3px;}
+.ob-body{flex:1;padding:28px 24px 0;}
+.ob-step{font-size:11px;font-weight:600;color:#A09888;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.ob-h{font-family:'Fraunces',serif;font-size:32px;font-weight:400;color:#18281A;line-height:1.15;margin-bottom:12px;letter-spacing:-.4px;}
+.ob-h em{font-style:italic;color:#4D9149;}
+.ob-p{font-size:15px;color:#7A8A7A;font-weight:300;line-height:1.6;margin-bottom:28px;}
+.ob-dots{display:flex;gap:6px;margin-bottom:24px;}
+.ob-dot{height:4px;border-radius:4px;background:#D8D0C8;transition:all .3s;}
+.ob-dot-active{background:#18281A;width:24px;}
+.ob-dot-inactive{width:8px;}
+.ob-footer{padding:0 24px 40px;display:flex;flex-direction:column;gap:10px;}
+.ob-btn-main{width:100%;padding:15px;border-radius:40px;border:none;background:#18281A;color:#EEE8DC;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+.ob-btn-main:hover{opacity:.88;}
+.ob-btn-skip{width:100%;padding:12px;border-radius:40px;border:none;background:transparent;color:#A09888;font-size:14px;font-weight:400;cursor:pointer;}
+
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:100;padding:14px 20px 10px;background:rgba(240,235,225,.9);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,.04);}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Fraunces',serif;font-size:21px;font-weight:500;color:#18281A;letter-spacing:-.4px;}
+.logo em{color:#4D9149;font-style:italic;}
+.hdr-btns{display:flex;gap:8px;}
+.hdr-btn{width:36px;height:36px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 1px 8px rgba(0,0,0,.08);position:relative;}
+.hdr-badge{position:absolute;top:-1px;right:-1px;width:9px;height:9px;background:#E04E2A;border-radius:50%;border:2px solid #F0EBE1;}
+
+/* ── BODY ── */
+.body{padding-bottom:96px;}
+
+/* ── HERO ── */
+.hero{margin:12px 14px 0;border-radius:30px;overflow:hidden;background:#18281A;min-height:270px;position:relative;}
+.hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 280px 180px at 100% 60%,rgba(77,145,73,.45) 0%,transparent 65%),radial-gradient(ellipse 180px 280px at 0% 100%,rgba(30,60,32,.6) 0%,transparent 65%);}
+.hero-deco{position:absolute;right:-16px;bottom:-24px;font-size:180px;opacity:.07;line-height:1;transform:rotate(12deg);pointer-events:none;user-select:none;}
+.hero-body{position:relative;z-index:1;padding:30px 28px 28px;}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(77,145,73,.18);border:1px solid rgba(77,145,73,.28);color:#90CF8D;font-size:11px;font-weight:500;padding:5px 13px;border-radius:40px;margin-bottom:18px;letter-spacing:.3px;}
+.hero-pip{width:6px;height:6px;background:#4D9149;border-radius:50%;animation:blink 2.2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+.hero-h1{font-family:'Fraunces',serif;font-size:36px;font-weight:300;color:#EEE8DC;line-height:1.12;margin-bottom:22px;letter-spacing:-.5px;}
+.hero-h1 em{font-style:italic;color:#90CF8D;font-weight:300;}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:#4D9149;color:#0A160A;border:none;border-radius:50px;padding:13px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(77,145,73,.35);}
+.hero-cta:hover{transform:scale(1.02);box-shadow:0 6px 28px rgba(77,145,73,.45);}
+.hero-arr{width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:12px;}
+
+/* ── STATS ── */
+.stats{display:flex;gap:10px;padding:16px 14px 0;overflow-x:auto;}
+.stat{flex-shrink:0;background:#fff;border-radius:22px;padding:14px 16px;min-width:84px;text-align:center;box-shadow:0 2px 14px rgba(0,0,0,.05);}
+.stat-n{font-family:'Fraunces',serif;font-size:24px;font-weight:500;color:#18281A;line-height:1;}
+.stat-l{font-size:10px;color:#A09888;margin-top:4px;}
+
+/* ── ROW HEADER ── */
+.row-hdr{display:flex;align-items:center;justify-content:space-between;padding:22px 20px 10px;}
+.row-title{font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:#18281A;}
+.row-link{font-size:12px;font-weight:500;color:#4D9149;background:none;border:none;cursor:pointer;}
+
+/* ── SERVICES ── */
+.svcs{display:flex;gap:10px;padding:0 14px;overflow-x:auto;}
+.svc-card{flex-shrink:0;width:136px;background:#fff;border-radius:24px;padding:18px 14px;box-shadow:0 2px 18px rgba(0,0,0,.05);transition:transform .15s;cursor:pointer;}
+.svc-card:hover{transform:translateY(-2px);}
+.svc-icon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:11px;}
+.svc-name{font-size:14px;font-weight:500;color:#18281A;margin-bottom:3px;}
+.svc-desc{font-size:11px;color:#A09888;line-height:1.4;font-weight:300;}
+
+/* ── NEXT VISIT ── */
+.nv{margin:0 14px;background:#18281A;border-radius:26px;padding:22px;position:relative;overflow:hidden;}
+.nv::after{content:'🌿';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:88px;opacity:.07;pointer-events:none;}
+.nv-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.nv-tag{font-size:10px;font-weight:600;color:#4D9149;letter-spacing:1px;text-transform:uppercase;}
+.nv-st{background:rgba(77,145,73,.15);border:1px solid rgba(77,145,73,.25);color:#90CF8D;font-size:10px;font-weight:500;padding:4px 11px;border-radius:20px;}
+.nv-date{font-family:'Fraunces',serif;font-size:32px;font-weight:300;color:#EEE8DC;line-height:1;margin-bottom:3px;}
+.nv-sub{font-size:13px;color:#5A7A5A;font-weight:300;margin-bottom:16px;}
+.nv-foot{display:flex;align-items:center;gap:10px;}
+.nv-av{width:32px;height:32px;border-radius:50%;background:rgba(77,145,73,.2);display:flex;align-items:center;justify-content:center;font-size:15px;}
+.nv-emp{font-size:13px;color:#C0DCC0;}
+.nv-time{font-size:12px;color:#4A6A4A;margin-left:auto;}
+
+/* ── SHOP CARDS ── */
+.shop-row{display:flex;gap:10px;padding:0 14px;overflow-x:auto;}
+.shop-card{flex-shrink:0;width:148px;background:#fff;border-radius:24px;padding:16px;position:relative;box-shadow:0 2px 18px rgba(0,0,0,.05);}
+.shop-hot{position:absolute;top:12px;right:12px;background:#E04E2A;color:#fff;font-size:8px;font-weight:600;padding:3px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.3px;}
+.shop-ico{width:52px;height:52px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:10px;}
+.shop-name{font-size:13px;font-weight:500;color:#18281A;margin-bottom:2px;line-height:1.3;}
+.shop-cat{font-size:10px;color:#A09888;margin-bottom:10px;}
+.shop-foot{display:flex;align-items:center;justify-content:space-between;}
+.shop-price{font-family:'Fraunces',serif;font-size:16px;font-weight:500;color:#18281A;}
+.shop-plus{width:28px;height:28px;border-radius:50%;background:#18281A;color:#90CF8D;border:none;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s;}
+.shop-plus:hover{transform:scale(1.12);}
+
+/* ── TARIFFS ── */
+.page-hdr{padding:20px 20px 0;margin-bottom:18px;}
+.page-h1{font-family:'Fraunces',serif;font-size:28px;font-weight:500;color:#18281A;margin-bottom:3px;}
+.page-sub{font-size:13px;color:#A09888;font-weight:300;}
+.tariff-list{padding:0 14px;}
+.tc{border-radius:26px;padding:24px;margin-bottom:12px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s;}
+.tc:hover{transform:scale(1.005);}
+.tc-l{background:#fff;box-shadow:0 2px 20px rgba(0,0,0,.06);}
+.tc-s{background:linear-gradient(148deg,#1E3A20 0%,#2B4F2D 100%);}
+.tc-m{background:linear-gradient(148deg,#0F1E10 0%,#1C3020 100%);border:1px solid #283C28;}
+.tc-pop{position:absolute;top:22px;right:20px;background:#C9A84C;color:#fff;font-size:9px;font-weight:600;padding:4px 11px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;}
+.tc-name{font-family:'Fraunces',serif;font-size:21px;font-weight:500;margin-bottom:2px;}
+.tc-freq{font-size:12px;font-weight:300;margin-bottom:16px;}
+.tc-price{font-family:'Fraunces',serif;font-size:38px;font-weight:400;line-height:1;}
+.tc-mo{font-size:14px;font-weight:300;}
+.tc-sep{height:1px;margin:16px 0;}
+.tc-feats{display:flex;flex-direction:column;gap:9px;margin-bottom:18px;}
+.tc-feat{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:300;}
+.tc-chk{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;font-weight:700;}
+.tc-btn{width:100%;padding:13px;border-radius:40px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;letter-spacing:.2px;}
+.tc-btn:hover{opacity:.86;}
+.tc-l .tc-name,.tc-l .tc-price{color:#18281A;}
+.tc-l .tc-freq,.tc-l .tc-mo{color:#A09888;}
+.tc-l .tc-feat{color:#3A5A3A;}
+.tc-l .tc-chk{background:#EAF3EA;color:#4D9149;}
+.tc-l .tc-sep{background:#EDE8DF;}
+.tc-l .tc-btn{background:#18281A;color:#EEE8DC;}
+.tc-s .tc-name,.tc-s .tc-price{color:#EEE8DC;}
+.tc-s .tc-freq,.tc-s .tc-mo{color:#6A8E6A;}
+.tc-s .tc-feat{color:#B8D8B8;}
+.tc-s .tc-chk{background:rgba(77,145,73,.2);color:#90CF8D;}
+.tc-s .tc-sep{background:rgba(255,255,255,.1);}
+.tc-s .tc-btn{background:rgba(255,255,255,.1);color:#EEE8DC;border:1px solid rgba(255,255,255,.15);}
+.tc-m .tc-name,.tc-m .tc-price{color:#EEE8DC;}
+.tc-m .tc-freq,.tc-m .tc-mo{color:#4A7A4A;}
+.tc-m .tc-feat{color:#9AC89A;}
+.tc-m .tc-chk{background:rgba(77,145,73,.14);color:#6AB868;}
+.tc-m .tc-sep{background:rgba(255,255,255,.08);}
+.tc-m .tc-btn{background:#4D9149;color:#0A160A;box-shadow:0 4px 18px rgba(77,145,73,.3);}
+
+/* ── SHOP PAGE ── */
+.cat-row{display:flex;gap:8px;padding:0 14px;margin-bottom:16px;overflow-x:auto;}
+.cat-btn{flex-shrink:0;padding:7px 16px;border-radius:22px;border:none;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;}
+.cat-on{background:#18281A;color:#90CF8D;}
+.cat-off{background:#fff;color:#A09888;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px;}
+
+/* ── CABINET ── */
+.cab-wrap{padding:14px 14px 0;}
+.profile-card{background:#18281A;border-radius:28px;padding:24px;margin-bottom:14px;position:relative;overflow:hidden;}
+.profile-card::before{content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;background:radial-gradient(circle,rgba(77,145,73,.22) 0%,transparent 70%);pointer-events:none;}
+.pc-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.pc-av{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#2E5A30,#4D9149);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:21px;color:#EEE8DC;flex-shrink:0;}
+.pc-name{font-family:'Fraunces',serif;font-size:19px;font-weight:500;color:#EEE8DC;margin-bottom:2px;}
+.pc-since{font-size:11px;color:#4A7A4A;font-weight:300;}
+.pc-plan{margin-left:auto;background:rgba(77,145,73,.18);border:1px solid rgba(77,145,73,.28);color:#90CF8D;font-size:11px;font-weight:500;padding:5px 14px;border-radius:20px;}
+.pc-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.pcn{text-align:center;}
+.pcn-n{font-family:'Fraunces',serif;font-size:22px;font-weight:500;color:#EEE8DC;line-height:1;}
+.pcn-l{font-size:10px;color:#4A7A4A;margin-top:3px;}
+.cab-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.cab-tab{flex:1;padding:10px 4px;border-radius:16px;border:none;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;}
+.ct-on{background:#18281A;color:#90CF8D;}
+.ct-off{background:#fff;color:#A09888;}
+
+/* schedule */
+.srow{background:#fff;border-radius:20px;padding:15px 17px;margin-bottom:9px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 14px rgba(0,0,0,.04);}
+.srow-date{text-align:center;min-width:40px;}
+.srow-d{font-family:'Fraunces',serif;font-size:26px;font-weight:500;color:#18281A;line-height:1;}
+.srow-m{font-size:10px;color:#A09888;letter-spacing:.3px;}
+.srow-vl{width:1px;height:38px;background:#EDE8DF;}
+.srow-inf{flex:1;}
+.srow-svc{font-size:14px;font-weight:500;color:#18281A;}
+.srow-emp{font-size:12px;color:#A09888;font-weight:300;margin-top:2px;}
+.srow-bdg{font-size:10px;font-weight:500;padding:4px 11px;border-radius:20px;}
+.sb-s{background:#18281A;color:#90CF8D;}
+.sb-p{background:#F0EBE2;color:#A09888;}
+.sb-d{background:#EAF3EA;color:#4D9149;}
+
+/* payments */
+.prow{background:#fff;border-radius:20px;padding:15px 17px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(0,0,0,.04);}
+.prow-per{font-size:14px;font-weight:500;color:#18281A;}
+.prow-dt{font-size:11px;color:#A09888;font-weight:300;margin-top:2px;}
+.prow-amt{font-family:'Fraunces',serif;font-size:18px;font-weight:500;color:#18281A;}
+.prow-st{font-size:11px;text-align:right;margin-top:2px;}
+.ps-ok{color:#4D9149;}
+.ps-due{color:#C9A84C;}
+
+/* report list card */
+.rcard{background:#fff;border-radius:22px;padding:18px;margin-bottom:11px;box-shadow:0 2px 14px rgba(0,0,0,.04);cursor:pointer;transition:transform .15s;}
+.rcard:hover{transform:scale(1.005);}
+.rc-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.rc-ico{width:44px;height:44px;border-radius:16px;background:#EAF3EA;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.rc-ttl{font-size:13px;font-weight:500;color:#18281A;}
+.rc-by{font-size:11px;color:#A09888;font-weight:300;margin-top:2px;}
+.rc-phbdg{background:#18281A;color:#90CF8D;font-size:10px;font-weight:500;padding:5px 12px;border-radius:20px;}
+.rc-txt{font-size:13px;color:#4A6A4A;line-height:1.65;font-weight:300;margin-bottom:12px;}
+.rc-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px;}
+.rc-ph{border-radius:14px;aspect-ratio:1;background:#EAF3EA;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:#F0EBE2;color:#4A6A4A;font-size:11px;font-style:italic;padding:4px 12px;border-radius:20px;}
+
+/* menu */
+.mlist{margin-top:14px;}
+.mitem{background:#fff;border-radius:18px;padding:15px 17px;margin-bottom:8px;display:flex;align-items:center;gap:13px;box-shadow:0 1px 10px rgba(0,0,0,.04);cursor:pointer;transition:transform .1s;}
+.mitem:hover{transform:scale(.99);}
+.mitem-ico{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.mitem-lbl{font-size:14px;color:#18281A;flex:1;}
+.mitem-arr{color:#C8C0B8;font-size:17px;}
+
+/* ── REPORT DETAIL PAGE ── */
+.rd-back{display:flex;align-items:center;gap:6px;background:none;border:none;color:#4D9149;font-size:13px;font-weight:600;cursor:pointer;padding:16px 20px 0;}
+.rd-hero{margin:12px 14px;background:#18281A;border-radius:26px;padding:24px;position:relative;overflow:hidden;}
+.rd-hero::after{content:'🌿';position:absolute;right:10px;bottom:-10px;font-size:100px;opacity:.07;pointer-events:none;}
+.rd-hero-tag{font-size:10px;font-weight:600;color:#4D9149;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.rd-hero-date{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#EEE8DC;margin-bottom:4px;}
+.rd-hero-meta{font-size:13px;color:#5A7A5A;font-weight:300;}
+.rd-section{padding:0 14px;margin-bottom:18px;}
+.rd-section-title{font-family:'Fraunces',serif;font-size:18px;color:#18281A;margin-bottom:10px;}
+.rd-text-box{background:#fff;border-radius:20px;padding:18px;font-size:14px;color:#3A5A3A;line-height:1.7;font-weight:300;box-shadow:0 2px 14px rgba(0,0,0,.04);}
+.rd-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rd-photo{border-radius:20px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.rd-plant-row{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+.rd-plant-ico{width:38px;height:38px;background:#EAF3EA;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.rd-plant-name{font-size:14px;font-style:italic;color:#18281A;}
+.rd-plant-status{font-size:11px;color:#4D9149;margin-left:auto;}
+.rd-rec{background:#EAF3EA;border-radius:16px;padding:14px 16px;border-left:3px solid #4D9149;}
+.rd-rec-title{font-size:11px;font-weight:600;color:#4D9149;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;}
+.rd-rec-text{font-size:13px;color:#3A5A3A;line-height:1.6;font-weight:300;}
+
+/* ── PAYMENT / SUBSCRIPTION PAGE ── */
+.pay-page{padding:0 14px;}
+.pay-plan-card{border-radius:26px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;}
+.ppc-selected{background:linear-gradient(148deg,#1E3A20 0%,#2B4F2D 100%);box-shadow:0 6px 30px rgba(30,60,32,.3);}
+.ppc-default{background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.06);}
+.ppc-check{position:absolute;top:18px;right:18px;width:26px;height:26px;border-radius:50%;background:#4D9149;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;}
+.ppc-name{font-family:'Fraunces',serif;font-size:20px;font-weight:500;margin-bottom:2px;}
+.ppc-price{font-family:'Fraunces',serif;font-size:32px;font-weight:400;line-height:1;margin-bottom:3px;}
+.ppc-mo{font-size:13px;font-weight:300;}
+.ppc-feats{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
+.ppc-feat{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:300;}
+.ppc-chk{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+.ppc-selected .ppc-name,.ppc-selected .ppc-price{color:#EEE8DC;}
+.ppc-selected .ppc-mo,.ppc-selected .ppc-feat{color:#7AAA7A;}
+.ppc-selected .ppc-chk{background:rgba(77,145,73,.25);color:#90CF8D;}
+.ppc-default .ppc-name,.ppc-default .ppc-price{color:#18281A;}
+.ppc-default .ppc-mo,.ppc-default .ppc-feat{color:#A09888;}
+.ppc-default .ppc-chk{background:#EAF3EA;color:#4D9149;}
+
+.pay-method-title{font-family:'Fraunces',serif;font-size:18px;color:#18281A;margin:18px 0 10px;}
+.pay-method-card{background:#fff;border-radius:18px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 10px rgba(0,0,0,.04);cursor:pointer;border:2px solid transparent;transition:border-color .2s;}
+.pay-method-card.selected{border-color:#4D9149;}
+.pmc-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.pmc-name{font-size:14px;font-weight:500;color:#18281A;}
+.pmc-desc{font-size:11px;color:#A09888;margin-top:1px;}
+.pmc-radio{width:20px;height:20px;border-radius:50%;border:2px solid #D8D0C8;margin-left:auto;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pmc-radio.on{border-color:#4D9149;background:#4D9149;}
+.pmc-dot{width:8px;height:8px;background:#fff;border-radius:50%;}
+
+.pay-summary{background:#18281A;border-radius:22px;padding:20px;margin-bottom:16px;}
+.ps-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.ps-label{font-size:13px;color:#5A7A5A;font-weight:300;}
+.ps-value{font-size:13px;color:#C0DCC0;font-weight:400;}
+.ps-divider{height:1px;background:rgba(255,255,255,.08);margin:10px 0;}
+.ps-total-label{font-size:14px;color:#EEE8DC;font-weight:500;}
+.ps-total-value{font-family:'Fraunces',serif;font-size:22px;color:#EEE8DC;font-weight:500;}
+
+.pay-btn{width:100%;padding:16px;border-radius:40px;border:none;background:#4D9149;color:#0A160A;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(77,145,73,.35);transition:opacity .15s;margin-bottom:10px;}
+.pay-btn:hover{opacity:.88;}
+.pay-safe{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#A09888;font-weight:300;}
+
+/* ── NOTIFICATIONS PAGE ── */
+.notif-page{padding:0 14px;}
+.notif-card{background:#fff;border-radius:20px;padding:16px;margin-bottom:10px;display:flex;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.04);position:relative;cursor:pointer;}
+.notif-card.unread::before{content:'';position:absolute;top:18px;left:12px;width:6px;height:6px;background:#4D9149;border-radius:50%;}
+.notif-card.unread{background:#FAFEF8;}
+.nc-icon{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.nc-title{font-size:14px;font-weight:500;color:#18281A;margin-bottom:3px;}
+.nc-text{font-size:12px;color:#7A8A7A;font-weight:300;line-height:1.5;}
+.nc-time{font-size:10px;color:#B0A898;margin-top:4px;}
+.notif-section-label{font-size:10px;font-weight:600;color:#A09888;letter-spacing:1.5px;text-transform:uppercase;padding:16px 4px 8px;}
+
+/* ── PROFILE EDIT PAGE ── */
+.profile-edit{padding:0 14px;}
+.pe-avatar-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0 24px;}
+.pe-av{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#2E5A30,#4D9149);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:30px;color:#EEE8DC;position:relative;cursor:pointer;}
+.pe-av-edit{position:absolute;bottom:2px;right:2px;width:26px;height:26px;background:#18281A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #F0EBE1;}
+.pe-av-name{font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:#18281A;margin-top:10px;}
+.pe-av-plan{font-size:12px;color:#4D9149;margin-top:2px;}
+.pe-group{background:#fff;border-radius:22px;padding:4px 18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.04);}
+.pe-field{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #F0EBE1;}
+.pe-field:last-child{border-bottom:none;}
+.pe-field-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.pe-field-inner{flex:1;}
+.pe-field-label{font-size:10px;font-weight:600;color:#A09888;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px;}
+.pe-field-input{width:100%;border:none;outline:none;font-size:15px;color:#18281A;background:transparent;font-family:'DM Sans',sans-serif;}
+.pe-field-input::placeholder{color:#C8C0B8;}
+.pe-arrow{color:#C8C0B8;font-size:16px;flex-shrink:0;}
+.pe-save-btn{width:100%;padding:15px;border-radius:40px;border:none;background:#18281A;color:#EEE8DC;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;transition:opacity .15s;}
+.pe-save-btn:hover{opacity:.88;}
+.pe-cancel-btn{width:100%;padding:13px;border-radius:40px;border:none;background:transparent;color:#A09888;font-size:14px;cursor:pointer;}
+.pe-save-toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:#18281A;color:#90CF8D;font-size:13px;font-weight:500;padding:12px 24px;border-radius:40px;box-shadow:0 4px 24px rgba(0,0,0,.2);z-index:999;white-space:nowrap;animation:toast-in .3s ease;}
+@keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:rgba(240,235,225,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:space-around;padding:8px 0 24px;z-index:200;}
+.nbtn{display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;padding:4px 12px;transition:transform .1s;}
+.nbtn:hover{transform:scale(1.06);}
+.nbtn-ic{width:38px;height:38px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:background .2s;}
+.nic-on{background:#18281A;}
+.nic-off{background:transparent;}
+.nbtn-lbl{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.nlbl-on{color:#18281A;}
+.nlbl-off{color:#B0A898;}
+`;
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const SERVICES = [
+  {icon:"💧",bg:"#DDEEF8",name:"Полив",desc:"Индивидуальный режим"},
+  {icon:"🌿",bg:"#DCF0DC",name:"Удобрение",desc:"По сезону и виду"},
+  {icon:"✂️",bg:"#FFF0DC",name:"Обрезка",desc:"Формирование кроны"},
+  {icon:"🪴",bg:"#FFE8D8",name:"Пересадка",desc:"В нужный горшок"},
+  {icon:"🔬",bg:"#EDD8FF",name:"Диагностика",desc:"Болезни, вредители"},
+  {icon:"📸",bg:"#FFEDD8",name:"Фотоотчёт",desc:"После каждого визита"},
+];
+const TARIFFS = [
+  {cls:"tc-l",name:"Лайт",freq:"1 визит в месяц",price:"1 990",mo:"₽ / мес",pop:false,feats:["Осмотр растений","Базовый полив","Консультация","Фотоотчёт"],btn:"Подключить Лайт"},
+  {cls:"tc-s",name:"Стандарт",freq:"2 визита в месяц",price:"3 490",mo:"₽ / мес",pop:true,feats:["Осмотр и диагностика","Полив и удобрение","Пересадка при необходимости","Консультация 24/7","Фотоотчёт"],btn:"Подключить Стандарт"},
+  {cls:"tc-m",name:"Макс",freq:"4 визита в месяц",price:"5 990",mo:"₽ / мес",pop:false,feats:["Полный уход и мониторинг","Пересадка включена","Лечение болезней","Персональный агроном","Приоритетный фотоотчёт"],btn:"Подключить Макс"},
+];
+const SHOP = [
+  {id:1,ico:"🌿",bg:"#DCF0DC",name:"Monstera Deliciosa",cat:"Растение",price:"2 800 ₽",hot:"Хит"},
+  {id:2,ico:"🏺",bg:"#FFF0DC",name:"Горшок керамика 20 см",cat:"Горшки",price:"890 ₽",hot:""},
+  {id:3,ico:"💧",bg:"#DDEEF8",name:"Капельный полив 5 л",cat:"Полив",price:"1 290 ₽",hot:"Новинка"},
+  {id:4,ico:"🌱",bg:"#DCF0DC",name:"Удобрение универсал",cat:"Удобрения",price:"450 ₽",hot:""},
+  {id:5,ico:"🧺",bg:"#FFE8D8",name:"Кашпо плетёное",cat:"Горшки",price:"1 100 ₽",hot:"Хит"},
+  {id:6,ico:"🌻",bg:"#FFF0DC",name:"Helianthus annuus",cat:"Растение",price:"1 600 ₽",hot:""},
+];
+const SCHEDULE = [
+  {id:1,day:"15",mon:"МАЙ",svc:"Полив и осмотр",emp:"Мария К. · 10:00",status:"s"},
+  {id:2,day:"29",mon:"МАЙ",svc:"Удобрение",emp:"Мария К. · 10:00",status:"p"},
+  {id:3,day:"12",mon:"ИЮН",svc:"Полив и осмотр",emp:"Дмитрий В. · 11:00",status:"p"},
+  {id:4,day:"26",mon:"ИЮН",svc:"Комплексный уход",emp:"Мария К. · 09:30",status:"p"},
+];
+const PAYMENTS = [
+  {period:"Апрель 2025",date:"1 апр 2025",amt:"3 490 ₽",ok:true},
+  {period:"Май 2025",date:"1 мая 2025",amt:"3 490 ₽",ok:true},
+  {period:"Июнь 2025",date:"1 июн 2025",amt:"3 490 ₽",ok:false},
+];
+const REPORTS = [
+  {id:1,date:"17 апреля 2025",emp:"Мария К.",text:"Все растения в отличном состоянии. Выполнен плановый полив и внесение комплексного удобрения. Monstera deliciosa показывает активный рост — появился новый лист.",photos:["🌿","🪴","🌱","💧"],plants:[{name:"Monstera deliciosa",status:"Отлично"},{name:"Ficus lyrata",status:"Хорошо"},{name:"Pothos",status:"Отлично"}],rec:"Продолжайте текущий режим полива. Пересадка Monstera рекомендована через 2 месяца."},
+  {id:2,date:"3 апреля 2025",emp:"Дмитрий В.",text:"Выполнен плановый полив. Обнаружен лёгкий хлороз у Ficus lyrata — рекомендовано добавить железосодержащее удобрение. Остальные растения в норме.",photos:["🌳","🍃","🌺","🌾"],plants:[{name:"Ficus lyrata",status:"Требует внимания"},{name:"Sansevieria",status:"Отлично"},{name:"ZZ Plant",status:"Хорошо"}],rec:"Добавьте железосодержащее удобрение для Ficus lyrata. Следующий осмотр через 2 недели."},
+];
+const NOTIFS = [
+  {id:1,icon:"📅",bg:"#EAF3EA",title:"Визит послезавтра",text:"Мария К. придёт 15 мая в 10:00. Полив и осмотр растений.",time:"Сегодня, 09:00",unread:true},
+  {id:2,icon:"📸",bg:"#F0EBE2",title:"Новый фотоотчёт",text:"Дмитрий В. отправил отчёт о визите 3 апреля. 4 фотографии.",time:"3 апр, 17:30",unread:true},
+  {id:3,icon:"💳",bg:"#DDEEF8",title:"Списание 1 июня",text:"Запланировано списание 3 490 ₽ за тариф Стандарт.",time:"1 апр, 10:00",unread:false},
+  {id:4,icon:"🌿",bg:"#DCF0DC",title:"Совет по уходу",text:"Сейчас самое время подкормить растения — весенний сезон активного роста.",time:"28 мар, 12:00",unread:false},
+  {id:5,icon:"⭐",bg:"#FFF0DC",title:"Оцените визит",text:"Как прошёл визит Марии К.? Оставьте оценку — это важно для нас.",time:"18 апр, 11:00",unread:false},
+];
+const OB_SLIDES = [
+  {bg:"linear-gradient(145deg,#18281A,#2D5020)",emoji:"🌿",step:"01 / 03",h:<>Добро пожаловать в <em>FloraCare</em></>,p:"Профессиональный уход за вашими растениями. Мы заботимся о них, пока вы занимаетесь своими делами.",btn:"Начать",pip:"Пропустить"},
+  {bg:"linear-gradient(145deg,#1A1E28,#252D3A)",emoji:"📅",step:"02 / 03",h:<>Удобный <em>график</em> и отчёты</>,p:"После каждого визита наш специалист отправит вам фотоотчёт прямо в приложение. Вы всегда будете знать, как чувствуют себя растения.",btn:"Далее",pip:"Пропустить"},
+  {bg:"linear-gradient(145deg,#281A18,#3A2820)",emoji:"⭐",step:"03 / 03",h:<>Выберите <em>тариф</em> и начните</>,p:"Три тарифа на любой случай — от 1 до 4 визитов в месяц. Начните сегодня и получите первый месяц со скидкой 20%.",btn:"Выбрать тариф",pip:null},
+];
+
+const CATS = ["Все","Растения","Горшки","Полив","Удобрения"];
+const PAY_METHODS = [
+  {id:"card",icon:"💳",bg:"#DDEEF8",name:"Банковская карта",desc:"Visa, Mastercard, МИР"},
+  {id:"sbp",icon:"⚡",bg:"#EAF3EA",name:"СБП",desc:"Оплата по QR-коду"},
+  {id:"apple",icon:"🍎",bg:"#F5F2EC",name:"Apple Pay",desc:"Touch ID или Face ID"},
+];
+
+const bdgCls = s=>({s:"sb-s",p:"sb-p",d:"sb-d"}[s]||"sb-p");
+const bdgLbl = s=>({s:"Скоро",p:"Запланировано",d:"Выполнен"}[s]||"—");
+
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+function Onboarding({onDone}){
+  const [step,setStep]=useState(0);
+  const s=OB_SLIDES[step];
+  const next=()=>{if(step<OB_SLIDES.length-1)setStep(step+1);else onDone();};
+  return(
+    <div className="ob-wrap">
+      <div className="ob-slide">
+        <div className="ob-visual">
+          <div className="ob-visual-bg" style={{background:s.bg}}/>
+          <div className="ob-visual-emoji">{s.emoji}</div>
+          <div className="ob-visual-content">
+            <div className="ob-visual-tag">
+              <div style={{width:6,height:6,background:"#fff",borderRadius:"50%",opacity:.7}}/>
+              FloraCare · Уход за растениями
+            </div>
+          </div>
+        </div>
+        <div className="ob-body">
+          <div className="ob-step">{s.step}</div>
+          <div className="ob-h">{s.h}</div>
+          <div className="ob-p">{s.p}</div>
+          <div className="ob-dots">
+            {OB_SLIDES.map((_,i)=>(
+              <div key={i} className={`ob-dot ${i===step?"ob-dot-active":"ob-dot-inactive"}`}/>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="ob-footer">
+        <button className="ob-btn-main" onClick={next}>{s.btn}</button>
+        {s.pip && <button className="ob-btn-skip" onClick={onDone}>{s.pip}</button>}
+      </div>
+    </div>
+  );
+}
+
+// ── REPORT DETAIL ─────────────────────────────────────────────────────────────
+function ReportDetail({report,onBack}){
+  return(
+    <div style={{paddingBottom:100}}>
+      <button className="rd-back" onClick={onBack}>← Назад к отчётам</button>
+      <div className="rd-hero">
+        <div className="rd-hero-tag">Фотоотчёт о визите</div>
+        <div className="rd-hero-date">{report.date}</div>
+        <div className="rd-hero-meta">Специалист: {report.emp} · {report.photos.length} фото</div>
+      </div>
+
+      <div className="rd-section" style={{marginTop:18}}>
+        <div className="rd-section-title">Заключение</div>
+        <div className="rd-text-box">{report.text}</div>
+      </div>
+
+      <div className="rd-section">
+        <div className="rd-section-title">Фотографии</div>
+        <div className="rd-photo-grid">
+          {report.photos.map((p,i)=>(
+            <div key={i} className="rd-photo" style={{background:["#DCF0DC","#EAF3EA","#DDEEF8","#FFF0DC"][i%4]}}>{p}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rd-section">
+        <div className="rd-section-title">Состояние растений</div>
+        {report.plants.map((pl,i)=>(
+          <div key={i} className="rd-plant-row">
+            <div className="rd-plant-ico">🌿</div>
+            <div className="rd-plant-name">{pl.name}</div>
+            <div className="rd-plant-status">{pl.status}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="rd-section">
+        <div className="rd-section-title">Рекомендации</div>
+        <div className="rd-rec">
+          <div className="rd-rec-title">От специалиста</div>
+          <div className="rd-rec-text">{report.rec}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PAYMENT PAGE ─────────────────────────────────────────────────────────────
+function PaymentPage({onBack,onSuccess}){
+  const [selected,setSelected]=useState(1);
+  const [method,setMethod]=useState("card");
+  const [paid,setPaid]=useState(false);
+  const plan=TARIFFS[selected];
+  const prices=["1 990","3 490","5 990"];
+  if(paid)return(
+    <div style={{minHeight:"80vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 24px",textAlign:"center"}}>
+      <div style={{fontSize:72,marginBottom:20}}>🎉</div>
+      <div style={{fontFamily:"'Fraunces',serif",fontSize:28,color:"#18281A",marginBottom:10}}>Подписка оформлена!</div>
+      <div style={{fontSize:15,color:"#7A8A7A",lineHeight:1.6,fontWeight:300,marginBottom:32}}>Тариф <strong style={{color:"#18281A"}}>{plan.name}</strong> активирован.<br/>Первый визит мы запланируем в ближайшее время.</div>
+      <button className="ob-btn-main" onClick={onBack}>Отлично!</button>
+    </div>
+  );
+  return(
+    <div>
+      <button className="rd-back" onClick={onBack}>← Назад</button>
+      <div className="page-hdr"><div className="page-h1">Оформление</div><div className="page-sub">Выберите тариф и способ оплаты</div></div>
+      <div className="pay-page">
+        {TARIFFS.map((t,i)=>(
+          <div key={i} className={`pay-plan-card ${selected===i?"ppc-selected":"ppc-default"}`} onClick={()=>setSelected(i)}>
+            {selected===i && <div className="ppc-check">✓</div>}
+            <div className="ppc-name">{t.name}</div>
+            <div className="ppc-price">{prices[i]} <span className="ppc-mo">₽ / мес</span></div>
+            <div className="ppc-feats">
+              {t.feats.slice(0,3).map((f,j)=>(
+                <div key={j} className="ppc-feat"><div className="ppc-chk">✓</div>{f}</div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div className="pay-method-title">Способ оплаты</div>
+        {PAY_METHODS.map(m=>(
+          <div key={m.id} className={`pay-method-card ${method===m.id?"selected":""}`} onClick={()=>setMethod(m.id)}>
+            <div className="pmc-icon" style={{background:m.bg}}>{m.icon}</div>
+            <div><div className="pmc-name">{m.name}</div><div className="pmc-desc">{m.desc}</div></div>
+            <div className={`pmc-radio ${method===m.id?"on":""}`}>{method===m.id&&<div className="pmc-dot"/>}</div>
+          </div>
+        ))}
+
+        <div className="pay-summary" style={{marginTop:18}}>
+          <div className="ps-row"><span className="ps-label">Тариф</span><span className="ps-value">{plan.name}</span></div>
+          <div className="ps-row"><span className="ps-label">Период</span><span className="ps-value">1 месяц</span></div>
+          <div className="ps-row"><span className="ps-label">Скидка (первый месяц)</span><span className="ps-value" style={{color:"#90CF8D"}}>−20%</span></div>
+          <div className="ps-divider"/>
+          <div className="ps-row">
+            <span className="ps-total-label">Итого</span>
+            <span className="ps-total-value">{Math.round(parseInt(prices[selected].replace(" ",""))*0.8).toLocaleString("ru")} ₽</span>
+          </div>
+        </div>
+
+        <button className="pay-btn" onClick={()=>setPaid(true)}>Оплатить и подключить</button>
+        <div className="pay-safe">🔒 Безопасная оплата · SSL шифрование</div>
+        <div style={{height:16}}/>
+      </div>
+    </div>
+  );
+}
+
+// ── NOTIFICATIONS PAGE ────────────────────────────────────────────────────────
+function NotifsPage({onBack}){
+  const [notifs,setNotifs]=useState(NOTIFS);
+  const readAll=()=>setNotifs(n=>n.map(x=>({...x,unread:false})));
+  const unread=notifs.filter(n=>n.unread).length;
+  return(
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px 0"}}>
+        <button className="rd-back" style={{padding:0}} onClick={onBack}>← Назад</button>
+        {unread>0&&<button style={{background:"none",border:"none",color:"#4D9149",fontSize:12,fontWeight:600,cursor:"pointer"}} onClick={readAll}>Прочитать все</button>}
+      </div>
+      <div className="page-hdr"><div className="page-h1">Уведомления</div><div className="page-sub">{unread>0?`${unread} непрочитанных`:"Всё прочитано"}</div></div>
+      <div className="notif-page">
+        {["Новые","Ранее"].map((label,li)=>{
+          const items=li===0?notifs.filter(n=>n.unread):notifs.filter(n=>!n.unread);
+          if(!items.length)return null;
+          return(
+            <div key={label}>
+              <div className="notif-section-label">{label}</div>
+              {items.map(n=>(
+                <div key={n.id} className={`notif-card ${n.unread?"unread":""}`} onClick={()=>setNotifs(ns=>ns.map(x=>x.id===n.id?{...x,unread:false}:x))}>
+                  <div className="nc-icon" style={{background:n.bg}}>{n.icon}</div>
+                  <div style={{flex:1}}>
+                    <div className="nc-title">{n.title}</div>
+                    <div className="nc-text">{n.text}</div>
+                    <div className="nc-time">{n.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── PROFILE EDIT ──────────────────────────────────────────────────────────────
+function ProfileEdit({onBack}){
+  const [form,setForm]=useState({name:"Алексей Петров",phone:"+7 900 123-45-67",email:"alex@example.com",address:"ул. Садовая, 12, кв. 34",notify:true});
+  const [saved,setSaved]=useState(false);
+  const save=()=>{setSaved(true);setTimeout(()=>{setSaved(false);onBack();},1800);};
+  const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
+  return(
+    <div>
+      <button className="rd-back" onClick={onBack}>← Назад</button>
+      <div className="page-hdr"><div className="page-h1">Профиль</div><div className="page-sub">Редактирование данных</div></div>
+      <div className="profile-edit">
+        <div className="pe-avatar-wrap">
+          <div className="pe-av">АП<div className="pe-av-edit">✏️</div></div>
+          <div className="pe-av-name">{form.name}</div>
+          <div className="pe-av-plan">Тариф Стандарт</div>
+        </div>
+
+        <div className="pe-group">
+          {[
+            {icon:"👤",label:"Имя и фамилия",key:"name",type:"text"},
+            {icon:"📱",label:"Телефон",key:"phone",type:"tel"},
+            {icon:"✉️",label:"Email",key:"email",type:"email"},
+          ].map(f=>(
+            <div key={f.key} className="pe-field">
+              <div className="pe-field-icon">{f.icon}</div>
+              <div className="pe-field-inner">
+                <div className="pe-field-label">{f.label}</div>
+                <input className="pe-field-input" type={f.type} value={form[f.key]} onChange={e=>upd(f.key,e.target.value)}/>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="pe-group">
+          <div className="pe-field">
+            <div className="pe-field-icon">📍</div>
+            <div className="pe-field-inner">
+              <div className="pe-field-label">Адрес обслуживания</div>
+              <input className="pe-field-input" value={form.address} onChange={e=>upd("address",e.target.value)}/>
+            </div>
+          </div>
+        </div>
+
+        <div className="pe-group">
+          {[
+            {icon:"🔔",label:"Push-уведомления"},
+            {icon:"📧",label:"Email-рассылка"},
+            {icon:"💬",label:"SMS-напоминания"},
+          ].map((item,i)=>(
+            <div key={i} className="pe-field" style={{cursor:"pointer"}}>
+              <div className="pe-field-icon">{item.icon}</div>
+              <div className="pe-field-inner"><div className="pe-field-label">{item.label}</div></div>
+              <div style={{width:44,height:26,background:i===0?"#4D9149":"#D8D0C8",borderRadius:13,position:"relative",cursor:"pointer",flexShrink:0}}>
+                <div style={{width:20,height:20,background:"#fff",borderRadius:"50%",position:"absolute",top:3,left:i===0?20:3,transition:"left .2s",boxShadow:"0 1px 4px rgba(0,0,0,.2)"}}/>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button className="pe-save-btn" onClick={save}>Сохранить изменения</button>
+        <button className="pe-cancel-btn" onClick={onBack}>Отмена</button>
+        <div style={{height:16}}/>
+        {saved&&<div className="pe-save-toast">✓ Данные сохранены</div>}
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
+function ClientApp(){
+  const [onboarded,setOnboarded]=useState(false);
+  const [page,setPage]=useState("home");
+  const [ctab,setCtab]=useState("sch");
+  const [cat,setCat]=useState("Все");
+  const [cart,setCart]=useState([]);
+  const [subPage,setSubPage]=useState(null); // "report-detail" | "payment" | "notifs" | "profile-edit"
+  const [activeReport,setActiveReport]=useState(null);
+  const unreadCount=NOTIFS.filter(n=>n.unread).length;
+
+  if(!onboarded) return <><style>{CSS}</style><div className="shell"><Onboarding onDone={()=>setOnboarded(true)}/></div></>;
+
+  const filtered=cat==="Все"?SHOP:SHOP.filter(i=>i.cat===cat);
+
+  // sub-pages override
+  if(subPage==="report-detail"&&activeReport)
+    return <><style>{CSS}</style><div className="shell"><ReportDetail report={activeReport} onBack={()=>{setSubPage(null);setActiveReport(null);}}/></div></>;
+  if(subPage==="payment")
+    return <><style>{CSS}</style><div className="shell"><PaymentPage onBack={()=>setSubPage(null)} onSuccess={()=>setSubPage(null)}/></div></>;
+  if(subPage==="notifs")
+    return <><style>{CSS}</style><div className="shell"><NotifsPage onBack={()=>setSubPage(null)}/></div></>;
+  if(subPage==="profile-edit")
+    return <><style>{CSS}</style><div className="shell"><ProfileEdit onBack={()=>setSubPage(null)}/></div></>;
+
+  const TABS=[{id:"home",icon:"🏠",lbl:"Главная"},{id:"tariffs",icon:"⭐",lbl:"Тарифы"},{id:"shop",icon:"🛍",lbl:"Магазин"},{id:"cabinet",icon:"👤",lbl:"Кабинет"}];
+  const CTABS=[{id:"sch",lbl:"📅 График"},{id:"pay",lbl:"💳 Платежи"},{id:"rep",lbl:"📸 Отчёты"}];
+
+  return(
+    <><style>{CSS}</style>
+    <div className="shell">
+      {/* HEADER */}
+      <div className="hdr">
+        <div className="hdr-inner">
+          <div className="logo">Flora<em>Care</em></div>
+          <div className="hdr-btns">
+            <div style={{position:"relative"}}>
+              <button className="hdr-btn" onClick={()=>setSubPage("notifs")}>🔔</button>
+              {unreadCount>0&&<div className="hdr-badge"/>}
+            </div>
+            <button className="hdr-btn">🔍</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="body">
+
+        {/* ── HOME ── */}
+        {page==="home"&&<>
+          <div className="hero">
+            <div className="hero-glow"/>
+            <div className="hero-deco">🌿</div>
+            <div className="hero-body">
+              <div className="hero-pill"><div className="hero-pip"/>Профессиональный уход</div>
+              <div className="hero-h1">Ваши растения<br/>в <em>надёжных</em><br/>руках</div>
+              <button className="hero-cta" onClick={()=>setSubPage("payment")}>
+                Выбрать тариф<div className="hero-arr">→</div>
+              </button>
+            </div>
+          </div>
+          <div className="stats">
+            {[{n:"10к+",l:"Клиентов"},{n:"5 лет",l:"На рынке"},{n:"98%",l:"Довольных"},{n:"47к",l:"Визитов"}].map((s,i)=>(
+              <div key={i} className="stat"><div className="stat-n">{s.n}</div><div className="stat-l">{s.l}</div></div>
+            ))}
+          </div>
+          <div className="row-hdr"><div className="row-title">Услуги</div><button className="row-link">Все →</button></div>
+          <div className="svcs">
+            {SERVICES.map((s,i)=>(
+              <div key={i} className="svc-card">
+                <div className="svc-icon" style={{background:s.bg}}>{s.icon}</div>
+                <div className="svc-name">{s.name}</div>
+                <div className="svc-desc">{s.desc}</div>
+              </div>
+            ))}
+          </div>
+          <div className="row-hdr">
+            <div className="row-title">Следующий визит</div>
+            <button className="row-link" onClick={()=>{setPage("cabinet");setCtab("sch");}}>График →</button>
+          </div>
+          <div className="nv">
+            <div className="nv-top"><div className="nv-tag">Ближайшее посещение</div><div className="nv-st">Скоро</div></div>
+            <div className="nv-date">15 мая</div>
+            <div className="nv-sub">Полив и осмотр · Четверг</div>
+            <div className="nv-foot"><div className="nv-av">🌿</div><div className="nv-emp">Мария К.</div><div className="nv-time">10:00</div></div>
+          </div>
+          <div className="row-hdr"><div className="row-title">Магазин</div><button className="row-link" onClick={()=>setPage("shop")}>Все →</button></div>
+          <div className="shop-row">
+            {SHOP.slice(0,4).map(item=>(
+              <div key={item.id} className="shop-card">
+                {item.hot&&<div className="shop-hot">{item.hot}</div>}
+                <div className="shop-ico" style={{background:item.bg}}>{item.ico}</div>
+                <div className="shop-name">{item.name}</div>
+                <div className="shop-cat">{item.cat}</div>
+                <div className="shop-foot">
+                  <div className="shop-price">{item.price}</div>
+                  <button className="shop-plus" onClick={()=>setCart(c=>c.includes(item.id)?c:[...c,item.id])}>{cart.includes(item.id)?"✓":"+"}</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{height:8}}/>
+        </>}
+
+        {/* ── TARIFFS ── */}
+        {page==="tariffs"&&<>
+          <div className="page-hdr"><div className="page-h1">Тарифы</div><div className="page-sub">Выберите подходящий план ухода</div></div>
+          <div className="tariff-list">
+            {TARIFFS.map((t,i)=>(
+              <div key={i} className={`tc ${t.cls}`}>
+                {t.pop&&<div className="tc-pop">Популярный</div>}
+                <div className="tc-name">{t.name}</div>
+                <div className="tc-freq">{t.freq}</div>
+                <div className="tc-price">{t.price} <span className="tc-mo">{t.mo}</span></div>
+                <div className="tc-sep"/>
+                <div className="tc-feats">{t.feats.map((f,j)=><div key={j} className="tc-feat"><div className="tc-chk">✓</div>{f}</div>)}</div>
+                <button className="tc-btn" onClick={()=>setSubPage("payment")}>{t.btn}</button>
+              </div>
+            ))}
+          </div>
+        </>}
+
+        {/* ── SHOP ── */}
+        {page==="shop"&&<>
+          <div className="page-hdr"><div className="page-h1">Магазин</div><div className="page-sub">Растения, горшки, уход</div></div>
+          <div className="cat-row">{CATS.map(c=><button key={c} className={`cat-btn ${cat===c?"cat-on":"cat-off"}`} onClick={()=>setCat(c)}>{c}</button>)}</div>
+          <div className="shop-grid">
+            {filtered.map(item=>(
+              <div key={item.id} className="shop-card" style={{width:"auto"}}>
+                {item.hot&&<div className="shop-hot">{item.hot}</div>}
+                <div className="shop-ico" style={{background:item.bg,width:52,height:52,borderRadius:18}}>{item.ico}</div>
+                <div className="shop-name">{item.name}</div>
+                <div className="shop-cat">{item.cat}</div>
+                <div className="shop-foot">
+                  <div className="shop-price">{item.price}</div>
+                  <button className="shop-plus" onClick={()=>setCart(c=>c.includes(item.id)?c:[...c,item.id])}>{cart.includes(item.id)?"✓":"+"}</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{height:8}}/>
+        </>}
+
+        {/* ── CABINET ── */}
+        {page==="cabinet"&&<>
+          <div className="cab-wrap">
+            <div className="profile-card">
+              <div className="pc-top">
+                <div className="pc-av">АП</div>
+                <div>
+                  <div className="pc-name">Алексей Петров</div>
+                  <div className="pc-since">С нами с Март 2025</div>
+                </div>
+                <div className="pc-plan">Стандарт</div>
+              </div>
+              <div className="pc-nums">
+                <div className="pcn"><div className="pcn-n">8</div><div className="pcn-l">Растений</div></div>
+                <div className="pcn"><div className="pcn-n">14</div><div className="pcn-l">Визитов</div></div>
+                <div className="pcn"><div className="pcn-n">6</div><div className="pcn-l">Отчётов</div></div>
+              </div>
+            </div>
+            <div className="cab-tabs">
+              {CTABS.map(t=><button key={t.id} className={`cab-tab ${ctab===t.id?"ct-on":"ct-off"}`} onClick={()=>setCtab(t.id)}>{t.lbl}</button>)}
+            </div>
+
+            {ctab==="sch"&&SCHEDULE.map(s=>(
+              <div key={s.id} className="srow">
+                <div className="srow-date"><div className="srow-d">{s.day}</div><div className="srow-m">{s.mon}</div></div>
+                <div className="srow-vl"/>
+                <div className="srow-inf"><div className="srow-svc">{s.svc}</div><div className="srow-emp">{s.emp}</div></div>
+                <div className={`srow-bdg ${bdgCls(s.status)}`}>{bdgLbl(s.status)}</div>
+              </div>
+            ))}
+
+            {ctab==="pay"&&<>
+              {PAYMENTS.map((p,i)=>(
+                <div key={i} className="prow">
+                  <div><div className="prow-per">{p.period}</div><div className="prow-dt">{p.date}</div></div>
+                  <div><div className="prow-amt">{p.amt}</div><div className={`prow-st ${p.ok?"ps-ok":"ps-due"}`}>{p.ok?"✓ Оплачено":"⏳ Предстоит"}</div></div>
+                </div>
+              ))}
+              <button className="pay-btn" style={{marginTop:6}} onClick={()=>setSubPage("payment")}>Управление подпиской</button>
+            </>}
+
+            {ctab==="rep"&&REPORTS.map(r=>(
+              <div key={r.id} className="rcard" onClick={()=>{setActiveReport(r);setSubPage("report-detail");}}>
+                <div className="rc-head">
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <div className="rc-ico">🌿</div>
+                    <div><div className="rc-ttl">{r.date}</div><div className="rc-by">{r.emp}</div></div>
+                  </div>
+                  <div className="rc-phbdg">📷 {r.photos.length}</div>
+                </div>
+                <div className="rc-txt">{r.text.slice(0,100)}…</div>
+                <div className="chips">{r.plants.map((p,i)=><div key={i} className="chip">{p.name}</div>)}</div>
+                <div style={{marginTop:10,fontSize:12,color:"#4D9149",fontWeight:500}}>Читать полностью →</div>
+              </div>
+            ))}
+
+            <div className="mlist">
+              {[
+                {ico:"✏️",bg:"#EAF3EA",lbl:"Редактировать профиль",action:()=>setSubPage("profile-edit")},
+                {ico:"🔔",bg:"#DDEEF8",lbl:"Уведомления",action:()=>setSubPage("notifs")},
+                {ico:"💳",bg:"#F0EBE2",lbl:"Управление подпиской",action:()=>setSubPage("payment")},
+                {ico:"💬",bg:"#DDEEF8",lbl:"Поддержка",action:null},
+                {ico:"⚙️",bg:"#F5F2EC",lbl:"Настройки",action:null},
+                {ico:"🚪",bg:"#FFEEDD",lbl:"Выйти",action:null},
+              ].map((m,i)=>(
+                <div key={i} className="mitem" onClick={m.action||undefined}>
+                  <div className="mitem-ico" style={{background:m.bg}}>{m.ico}</div>
+                  <div className="mitem-lbl">{m.lbl}</div>
+                  <div className="mitem-arr">›</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
+
+      </div>{/* /body */}
+
+      {/* BOTTOM NAV */}
+      <div className="bnav">
+        {TABS.map(t=>(
+          <button key={t.id} className="nbtn" onClick={()=>setPage(t.id)}>
+            <div className={`nbtn-ic ${page===t.id?"nic-on":"nic-off"}`}><span style={{fontSize:19}}>{t.icon}</span></div>
+            <div className={`nbtn-lbl ${page===t.id?"nlbl-on":"nlbl-off"}`}>{t.lbl}</div>
+          </button>
+        ))}
+      </div>
+
+    </div>
+    </>
+  );
+}
+
+
+
+
+
+// ═══════════════════════════════════════════════════
+// STAFF APP  
+// ═══════════════════════════════════════════════════
+
+
+// ─── SHARED DATABASE ─────────────────────────────────────────────────────────
+const USERS = [
+  { id: 1, name: "Мария Козлова",   short: "МК", role: "gardener", login: "maria",  password: "1234", avatar: "#4A8A5A" },
+  { id: 2, name: "Дмитрий Волков",  short: "ДВ", role: "gardener", login: "dmitry", password: "1234", avatar: "#3A7A6A" },
+  { id: 3, name: "Анна Сергеева",   short: "АС", role: "gardener", login: "anna",   password: "1234", avatar: "#5A6A8A" },
+  { id: 4, name: "Нуриддин",        short: "НУ", role: "admin",    login: "admin",  password: "admin",  avatar: "#2D5A3D",
+    fullTitle: "Генеральный директор", email: "nuriddin@floracare.uz", phone: "+998 90 123-45-67",
+    permissions: ["dashboard","visits","reports","employees","clients","settings","finance","analytics"] },
+  { id: 5, name: "Нуриддин (Admin 1)", short: "Н1", role: "admin", login: "admin1", password: "admin1", avatar: "#3A4A8A",
+    fullTitle: "Операционный директор", email: "admin1@floracare.uz", phone: "+998 90 765-43-21",
+    permissions: ["dashboard","visits","reports","employees","clients"] },
+];
+
+const INIT_VISITS = [
+  { id: 1, clientId: 1, clientName: "Алексей Петров",      address: "ул. Садовая, 12, кв. 34",        date: "15 мая", time: "10:00", assignedTo: 1, service: "Полив и осмотр",         status: "pending",   report: null, photos: [], reportApproved: false },
+  { id: 2, clientId: 2, clientName: "Елена Смирнова",       address: "пр. Ленина, 45, оф. 12",          date: "15 мая", time: "12:30", assignedTo: 1, service: "Удобрение и пересадка",  status: "pending",   report: null, photos: [], reportApproved: false },
+  { id: 3, clientId: 3, clientName: "ООО «Зелёный офис»",  address: "БЦ Альфа, 5 этаж",                date: "14 мая", time: "15:00", assignedTo: 2, service: "Комплексный уход",        status: "done",      report: "Все растения в отличном состоянии. Выполнен полив, удобрение. У Ficus лёгкий хлороз — рекомендую железо.", photos: ["🌿","🪴","🌱","💧"], reportApproved: false },
+  { id: 4, clientId: 4, clientName: "Ирина Волкова",        address: "ул. Цветочная, 8, кв. 2",         date: "15 мая", time: "09:00", assignedTo: 2, service: "Полив и диагностика",    status: "pending",   report: null, photos: [], reportApproved: false },
+  { id: 5, clientId: 1, clientName: "Алексей Петров",      address: "ул. Садовая, 12, кв. 34",        date: "29 мая", time: "10:00", assignedTo: 1, service: "Удобрение",               status: "scheduled", report: null, photos: [], reportApproved: false },
+  { id: 6, clientId: 5, clientName: "Кафе «Листья»",        address: "Невский пр., 110",                 date: "16 мая", time: "08:00", assignedTo: 3, service: "Еженедельный уход",       status: "pending",   report: null, photos: [], reportApproved: false },
+];
+
+const CLIENTS = [
+  { id: 1, name: "Алексей Петров",     plan: "Стандарт", plants: 8,  phone: "+7 900 123-45-67", since: "Март 2025" },
+  { id: 2, name: "Елена Смирнова",      plan: "Макс",     plants: 22, phone: "+7 911 234-56-78", since: "Январь 2025" },
+  { id: 3, name: "ООО «Зелёный офис»", plan: "Макс",     plants: 45, phone: "+7 495 000-11-22", since: "Сентябрь 2024" },
+  { id: 4, name: "Ирина Волкова",       plan: "Лайт",     plants: 4,  phone: "+7 926 345-67-89", since: "Апрель 2025" },
+  { id: 5, name: "Кафе «Листья»",       plan: "Макс",     plants: 30, phone: "+7 812 111-22-33", since: "Февраль 2025" },
+];
+
+const EMOJIS = ["🌿","🪴","🌱","💧","🌳","🌺","🍃","🌻","🌾","🎋"];
+
+// ─── STYLES ──────────────────────────────────────────────────────────────────
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Outfit', sans-serif; background: #0C0C0C; min-height: 100vh; }
+::-webkit-scrollbar { width: 0; }
+input, textarea, button { font-family: 'Outfit', sans-serif; }
+
+/* ── LOGIN SCREEN ── */
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0C0C0C;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+.login-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 50%, rgba(45,90,61,0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 600px at 80% 30%, rgba(26,58,42,0.25) 0%, transparent 70%);
+}
+.login-leaf1 { position:absolute; font-size:180px; opacity:0.04; top:-40px; right:-20px; transform:rotate(20deg); }
+.login-leaf2 { position:absolute; font-size:120px; opacity:0.04; bottom:20px; left:-10px; transform:rotate(-15deg); }
+
+.login-card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 400px;
+  background: #141414;
+  border: 1px solid #1E2E1E;
+  border-radius: 24px;
+  padding: 40px 36px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+
+.login-logo {
+  text-align: center; margin-bottom: 8px;
+}
+.login-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; color: #E8F4E8; letter-spacing: -0.5px;
+}
+.login-logo-text span { color: #5DB85A; font-style: italic; }
+.login-logo-sub {
+  font-size: 11px; color: #3A5A3A; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+}
+
+.login-divider { height: 1px; background: #1E2E1E; margin: 28px 0; }
+
+.login-role-label {
+  font-size: 11px; font-weight: 600; color: #4A6A4A;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px;
+  text-align: center;
+}
+
+.role-selector {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px;
+}
+.role-card {
+  border: 2px solid #1E2E1E;
+  border-radius: 16px; padding: 16px 12px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; background: #0C0C0C;
+}
+.role-card:hover { border-color: #2D5A3D; background: #111811; }
+.role-card.selected { border-color: #5DB85A; background: #0F1F0F; }
+.role-card-icon { font-size: 28px; margin-bottom: 8px; }
+.role-card-name {
+  font-size: 13px; font-weight: 700; color: #C8E4C8;
+  margin-bottom: 3px;
+}
+.role-card.selected .role-card-name { color: #5DB85A; }
+.role-card-desc { font-size: 10px; color: #3A5A3A; font-weight: 400; line-height: 1.4; }
+
+.login-field { margin-bottom: 14px; }
+.login-field-label {
+  font-size: 11px; font-weight: 600; color: #4A6A4A;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; display: block;
+}
+.login-input {
+  width: 100%; background: #0C0C0C; border: 1.5px solid #1E2E1E;
+  border-radius: 12px; padding: 13px 16px;
+  font-size: 15px; color: #E8F4E8; outline: none;
+  transition: border-color 0.2s;
+}
+.login-input:focus { border-color: #5DB85A; }
+.login-input::placeholder { color: #2A4A2A; }
+
+.login-hint {
+  background: #0F1F0F; border: 1px solid #1E2E1E; border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 20px;
+  font-size: 11px; color: #3A6A3A; line-height: 1.6;
+}
+.login-hint strong { color: #5DB85A; }
+
+.login-btn {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #2D5A3D, #4A8A5A);
+  color: #E8F4E8; border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.3px; transition: opacity 0.2s;
+}
+.login-btn:hover { opacity: 0.9; }
+.login-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.login-error {
+  background: #2A0F0F; border: 1px solid #5A1A1A;
+  border-radius: 10px; padding: 10px 14px; margin-bottom: 14px;
+  font-size: 12px; color: #E88A8A; text-align: center;
+}
+
+/* ── APP SHELL ── */
+.app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+/* GARDENER theme — dark forest */
+.app-g { background: #0E1412; }
+.app-g .topbar { background: #111A16; border-bottom: 1px solid #1A2820; }
+.app-g .topbar-logo { font-family:'Playfair Display',serif; font-size:18px; color:#8ACBA0; }
+.app-g .topbar-logo em { color:#5DB85A; font-style:italic; }
+.app-g .topbar-user { font-size:11px; color:#3A6A4A; font-weight:500; }
+.app-g .topbar-logout { background:#1A2820; color:#5DB85A; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:600; cursor:pointer; }
+.app-g .content { padding: 16px 16px 90px; }
+.app-g .bottom-nav { background:#111A16; border-top:1px solid #1A2820; }
+.app-g .nav-btn-active .nav-lbl { color:#5DB85A; }
+.app-g .nav-btn-inactive .nav-lbl { color:#2A4A3A; }
+.app-g .nav-dot { background:#5DB85A; }
+
+/* ADMIN theme — clean light */
+.app-a { background: #F5F2EC; }
+.app-a .topbar { background: #1A2A1A; }
+.app-a .topbar-logo { font-family:'Playfair Display',serif; font-size:18px; color:#A8D4A8; }
+.app-a .topbar-logo em { color:#6DC86A; font-style:normal; font-weight:600; }
+.app-a .topbar-role-badge { background:#2D5A2D; color:#8ACE8A; font-size:10px; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:0.5px; text-transform:uppercase; }
+.app-a .topbar-logout { background:rgba(255,255,255,0.1); color:#8ACE8A; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:600; cursor:pointer; }
+.app-a .content { padding: 16px 16px 90px; }
+.app-a .bottom-nav { background:#1A2A1A; border-top:1px solid #253525; }
+.app-a .nav-btn-active .nav-lbl { color:#6DC86A; }
+.app-a .nav-btn-inactive .nav-lbl { color:#3A5A3A; }
+.app-a .nav-dot { background:#6DC86A; }
+
+.topbar { padding:14px 18px; position:sticky; top:0; z-index:100; }
+.topbar-inner { display:flex; align-items:center; justify-content:space-between; }
+.topbar-left {}
+.topbar-right { display:flex; align-items:center; gap:8px; }
+.topbar-user { font-size:11px; color:#3A6A4A; font-weight:500; }
+
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px;
+  display:flex; justify-content:space-around;
+  padding:8px 0 20px; z-index:200;
+}
+.nav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; border:none; background:transparent; cursor:pointer; padding:5px 12px; }
+.nav-icon { font-size:20px; }
+.nav-lbl { font-size:8px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; }
+.nav-dot { width:4px; height:4px; border-radius:50%; margin-top:1px; }
+
+/* ── SECTION HEADERS ── */
+.sec-title-g { font-family:'Playfair Display',serif; font-size:22px; color:#C8E8C8; margin-bottom:3px; }
+.sec-sub-g { font-size:12px; color:#3A6A4A; font-weight:300; margin-bottom:18px; }
+.sec-title-a { font-family:'Playfair Display',serif; font-size:22px; color:#1A3A1A; margin-bottom:3px; }
+.sec-sub-a { font-size:12px; color:#7A9A7A; font-weight:300; margin-bottom:18px; }
+
+/* ── CARDS ── */
+.card-g { background:#111A16; border:1px solid #1A2820; border-radius:18px; padding:16px; margin-bottom:12px; }
+.card-a { background:#FFFFFF; border:1px solid #E8E4DC; border-radius:18px; padding:16px; margin-bottom:12px; }
+.card-title-g { font-size:11px; font-weight:700; color:#3A6A4A; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
+.card-title-a { font-size:11px; font-weight:700; color:#7A9A7A; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
+
+/* ── TODAY SUMMARY (gardener) ── */
+.today-hero {
+  background: linear-gradient(135deg, #1A3020 0%, #243C28 100%);
+  border: 1px solid #2A4A30; border-radius:20px; padding:22px; margin-bottom:16px;
+}
+.today-greet { font-family:'Playfair Display',serif; font-size:24px; color:#E0F0E0; line-height:1.2; margin-bottom:4px; }
+.today-date { font-size:12px; color:#4A7A5A; font-weight:400; margin-bottom:16px; }
+.today-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.today-stat { background:rgba(0,0,0,0.2); border-radius:12px; padding:12px 8px; text-align:center; }
+.today-stat-n { font-size:24px; font-weight:800; color:#5DB85A; line-height:1; }
+.today-stat-l { font-size:10px; color:#4A7A5A; margin-top:3px; font-weight:400; }
+
+/* ── VISIT CARD ── */
+.visit-card-g {
+  background:#111A16; border:1px solid #1A2820;
+  border-radius:16px; padding:16px; margin-bottom:10px;
+  transition: border-color 0.2s;
+}
+.visit-card-g.urgent { border-color:#2D5A3D; }
+.vc-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+.vc-time { font-size:22px; font-weight:800; color:#E0F0E0; line-height:1; }
+.vc-svc { font-size:11px; color:#4A7A5A; margin-top:3px; }
+.vc-client { font-size:15px; font-weight:600; color:#C0E0C0; margin-bottom:3px; }
+.vc-addr { font-size:11px; color:#3A6A4A; }
+.vc-actions { display:flex; gap:8px; margin-top:14px; }
+
+/* ── BUTTONS ── */
+.btn { padding:9px 18px; border-radius:30px; border:none; font-size:11px; font-weight:700; cursor:pointer; letter-spacing:0.3px; text-transform:uppercase; transition:all 0.15s; }
+.btn-green { background:#2D5A3D; color:#8ACBA0; }
+.btn-green:hover { background:#3A6A4A; }
+.btn-blue { background:#1A3A5A; color:#8AB8D8; }
+.btn-outline { background:transparent; border:1.5px solid #2A4A3A; color:#5DB85A; }
+.btn-done { background:#1A3020; color:#4A8A5A; cursor:default; }
+.btn-primary-a { background:#2D5A3D; color:#E8F4E8; }
+.btn-danger-a { background:#5A2020; color:#E8A0A0; }
+.btn-gray-a { background:#F0ECE4; color:#7A9A7A; }
+.btn-full { width:100%; padding:14px; border-radius:14px; font-size:14px; font-weight:700; text-transform:none; letter-spacing:0; }
+.btn-send { background:linear-gradient(135deg,#2D5A3D,#4A8A5A); color:#E8F4E8; }
+.btn-send:disabled { background:#1A2820; color:#2A4A3A; cursor:not-allowed; }
+
+/* ── BADGE ── */
+.badge { display:inline-block; font-size:9px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:0.3px; text-transform:uppercase; }
+.badge-pending { background:#1A3020; color:#5DB85A; }
+.badge-done { background:#1A2A3A; color:#5A9EDB; }
+.badge-scheduled { background:#1E1E1E; color:#5A5A5A; }
+.badge-pending-a { background:#E8F5E9; color:#2D7A3D; }
+.badge-done-a { background:#E3F2FD; color:#1565C0; }
+.badge-scheduled-a { background:#F5F5F5; color:#757575; }
+.badge-warn { background:#3A2A0A; color:#C9A84C; }
+.badge-approved { background:#0A3A1A; color:#5DB85A; }
+
+/* ── REPORT FORM ── */
+.report-wrap { }
+.report-back { background:none; border:none; color:#5DB85A; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:16px; padding:0; display:flex; align-items:center; gap:4px; }
+.report-client-card {
+  background:linear-gradient(135deg,#1A3020,#243C28);
+  border:1px solid #2A4A30; border-radius:16px; padding:16px; margin-bottom:18px;
+}
+.rcc-name { font-size:16px; font-weight:700; color:#C0E0C0; margin-bottom:2px; }
+.rcc-info { font-size:12px; color:#4A7A5A; }
+
+.form-label { font-size:10px; font-weight:700; color:#3A6A4A; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; display:block; }
+.form-textarea {
+  width:100%; background:#0A100D; border:1.5px solid #1A2820;
+  border-radius:12px; padding:14px; color:#C8E8C8; font-size:14px;
+  resize:none; outline:none; transition:border-color 0.2s; line-height:1.5;
+}
+.form-textarea:focus { border-color:#5DB85A; }
+.form-textarea::placeholder { color:#1A3A2A; }
+
+.photo-upload {
+  background:#0A100D; border:2px dashed #1A2820; border-radius:12px;
+  padding:24px; text-align:center; cursor:pointer; transition:border-color 0.2s;
+  margin:6px 0 14px;
+}
+.photo-upload:hover { border-color:#2D5A3D; }
+.photo-upload-icon { font-size:32px; margin-bottom:6px; }
+.photo-upload-text { font-size:12px; color:#3A6A4A; font-weight:400; line-height:1.5; }
+
+.photos-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.photo-thumb { background:#1A3020; border-radius:10px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:26px; position:relative; }
+.photo-del { position:absolute; top:-4px; right:-4px; background:#5A1A1A; color:#E8A0A0; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+.send-success {
+  text-align:center; padding:40px 20px;
+}
+.success-icon { font-size:64px; margin-bottom:16px; }
+.success-title { font-family:'Playfair Display',serif; font-size:24px; color:#C8E8C8; margin-bottom:8px; }
+.success-text { font-size:13px; color:#4A7A5A; line-height:1.7; font-weight:300; }
+
+/* ── ADMIN VISIT TABLE ── */
+.visit-row-a {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0; border-bottom:1px solid #F0ECE4; cursor:pointer;
+}
+.visit-row-a:last-child { border-bottom:none; }
+.vra-time { font-size:13px; font-weight:700; color:#1A3A1A; min-width:44px; }
+.vra-client { flex:1; }
+.vra-name { font-size:14px; font-weight:500; color:#1A3A1A; }
+.vra-emp { font-size:11px; color:#7A9A7A; margin-top:1px; }
+.vra-svc { font-size:11px; color:#5A7A5A; font-style:italic; }
+
+/* ── ADMIN REPORT ROW ── */
+.rep-row {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0; border-bottom:1px solid #F0ECE4; cursor:pointer;
+}
+.rep-row:last-child { border-bottom:none; }
+.rep-emoji { font-size:26px; width:36px; text-align:center; }
+.rep-info { flex:1; }
+.rep-client { font-size:14px; font-weight:500; color:#1A3A1A; }
+.rep-meta { font-size:11px; color:#7A9A7A; margin-top:1px; }
+.rep-arrow { color:#CCCCCC; font-size:16px; }
+
+/* ── KPI ROW ── */
+.kpi-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.kpi-card { background:#fff; border:1px solid #E8E4DC; border-radius:18px; padding:18px; }
+.kpi-n { font-size:30px; font-weight:800; color:#1A3A1A; font-family:'Playfair Display',serif; line-height:1; }
+.kpi-l { font-size:11px; color:#7A9A7A; margin-top:4px; font-weight:300; }
+.kpi-tag { font-size:10px; font-weight:700; margin-top:8px; }
+.kpi-up { color:#2D7A4D; }
+.kpi-warn { color:#C9A84C; }
+
+/* ── EMPLOYEE ROW ── */
+.emp-row-a { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #F0ECE4; }
+.emp-row-a:last-child { border-bottom:none; }
+.emp-av { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; flex-shrink:0; }
+.emp-name-a { font-size:14px; font-weight:500; color:#1A3A1A; }
+.emp-stats-a { font-size:11px; color:#7A9A7A; margin-top:2px; }
+.emp-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.emp-online { background:#5DB85A; }
+.emp-offline { background:#CCCCCC; }
+
+/* ── MODAL ── */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:500; display:flex; align-items:flex-end; justify-content:center; padding:0; }
+.modal-sheet {
+  background:#fff; border-radius:24px 24px 0 0; padding:28px 24px 40px;
+  width:100%; max-width:430px; max-height:85vh; overflow-y:auto;
+}
+.modal-handle { width:40px; height:4px; background:#E0E0E0; border-radius:4px; margin:0 auto 20px; }
+.modal-title { font-family:'Playfair Display',serif; font-size:20px; color:#1A3A1A; margin-bottom:2px; }
+.modal-sub { font-size:12px; color:#7A9A7A; font-weight:300; margin-bottom:18px; }
+.modal-report-box { background:#F5F2EC; border-radius:14px; padding:16px; margin-bottom:14px; font-size:13px; color:#3A5A3A; line-height:1.7; font-weight:300; }
+.modal-photos { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+.modal-photo { background:#E8F5E9; border-radius:12px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:28px; }
+.modal-actions { display:flex; gap:8px; }
+.modal-btn { flex:1; padding:12px; border-radius:40px; border:none; font-family:'Outfit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; transition:opacity 0.15s; }
+.modal-btn:hover { opacity:0.85; }
+
+/* ── ASSIGN FORM ── */
+.assign-form { background:#fff; border:1px solid #E8E4DC; border-radius:18px; padding:20px; margin-bottom:12px; }
+.assign-select { width:100%; background:#F5F2EC; border:1.5px solid #E0DCd4; border-radius:12px; padding:12px 14px; font-size:14px; color:#1A3A1A; outline:none; appearance:none; font-family:'Outfit',sans-serif; margin-bottom:12px; }
+
+/* ── CLIENTS TABLE ── */
+.client-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #F0ECE4; }
+.client-row:last-child { border-bottom:none; }
+.client-name { font-size:14px; font-weight:500; color:#1A3A1A; flex:1; }
+.client-plan { font-size:11px; color:#5A7A5A; margin-top:1px; }
+.client-phone { font-size:11px; color:#7A9A7A; }
+
+/* EMPTY STATE */
+.empty-state { text-align:center; padding:40px 20px; }
+.empty-icon { font-size:48px; margin-bottom:12px; }
+.empty-text { font-size:14px; color:#3A6A4A; font-weight:300; line-height:1.6; }
+`;
+
+// ─── LOGIN SCREEN ─────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin }) {
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const roles = [
+    { id: "gardener", icon: "🌿", name: "Садовник", desc: "График визитов, отправка фотоотчётов" },
+    { id: "admin",    icon: "⚙️", name: "Администратор", desc: "Полный контроль, аналитика, управление" },
+  ];
+
+  const hints = {
+    gardener: { login: "maria / dmitry / anna", pass: "1234" },
+    admin:    { login: "admin", pass: "admin" },
+  };
+
+  const handleLogin = () => {
+    setError("");
+    const user = USERS.find(u =>
+      u.login === login.trim().toLowerCase() &&
+      u.password === password &&
+      u.role === selectedRole
+    );
+    if (!user) { setError("Неверный логин или пароль. Попробуйте ещё раз."); return; }
+    onLogin(user);
+  };
+
+  return (
+    <div className="login-wrap">
+      <div className="login-bg" />
+      <div className="login-leaf1">🌿</div>
+      <div className="login-leaf2">🍃</div>
+
+      <div className="login-card">
+        <div className="login-logo">
+          <div className="login-logo-text">Flora<span>Care</span></div>
+          <div className="login-logo-sub">Staff Portal</div>
+        </div>
+
+        <div className="login-divider" />
+
+        <div className="login-role-label">Выберите вашу роль</div>
+        <div className="role-selector">
+          {roles.map(r => (
+            <div
+              key={r.id}
+              className={`role-card ${selectedRole === r.id ? "selected" : ""}`}
+              onClick={() => { setSelectedRole(r.id); setLogin(""); setPassword(""); setError(""); }}
+            >
+              <div className="role-card-icon">{r.icon}</div>
+              <div className="role-card-name">{r.name}</div>
+              <div className="role-card-desc">{r.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {selectedRole && (
+          <>
+            {selectedRole === "gardener" && (
+              <div className="login-hint">
+                <strong>Для демо:</strong> логин <strong>maria</strong>, <strong>dmitry</strong> или <strong>anna</strong> · пароль <strong>1234</strong>
+              </div>
+            )}
+            {selectedRole === "admin" && (
+              <div className="login-hint">
+                👑 <strong>Admin (полный доступ):</strong> логин <strong>admin</strong> · пароль <strong>admin</strong><br/>
+                🔑 <strong>Admin 1 (ограниченный):</strong> логин <strong>admin1</strong> · пароль <strong>admin1</strong>
+              </div>
+            )}
+
+            {error && <div className="login-error">⚠ {error}</div>}
+
+            <div className="login-field">
+              <label className="login-field-label">Логин</label>
+              <input className="login-input" placeholder="Введите логин" value={login} onChange={e => setLogin(e.target.value)} />
+            </div>
+            <div className="login-field">
+              <label className="login-field-label">Пароль</label>
+              <input className="login-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleLogin()} />
+            </div>
+
+            <button className="login-btn" disabled={!login || !password} onClick={handleLogin}>
+              Войти как {selectedRole === "admin" ? "администратор" : "садовник"}
+            </button>
+          </>
+        )}
+
+        {!selectedRole && (
+          <div style={{ textAlign: "center", fontSize: 12, color: "#2A4A2A", fontWeight: 300 }}>
+            Выберите роль чтобы продолжить
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── GARDENER APP ─────────────────────────────────────────────────────────────
+function GardenerApp({ user, db, setDb, onLogout }) {
+  const [page, setPage] = useState("today");
+  const [reportVisit, setReportVisit] = useState(null);
+  const [reportText, setReportText] = useState("");
+  const [photos, setPhotos] = useState([]);
+  const [sent, setSent] = useState(false);
+
+  const myVisits = db.visits.filter(v => v.assignedTo === user.id);
+  const todayVisits = myVisits.filter(v => v.date === "15 мая");
+  const done = todayVisits.filter(v => v.status === "done").length;
+  const pending = todayVisits.filter(v => v.status === "pending").length;
+
+  const openReport = (visit) => {
+    setReportVisit(visit);
+    setReportText("");
+    setPhotos([]);
+    setSent(false);
+    setPage("report");
+  };
+
+  const addPhoto = () => {
+    if (photos.length < 8) setPhotos(p => [...p, EMOJIS[Math.floor(Math.random() * EMOJIS.length)]]);
+  };
+
+  const removePhoto = (i) => setPhotos(p => p.filter((_, idx) => idx !== i));
+
+  const sendReport = () => {
+    setDb(prev => ({
+      ...prev,
+      visits: prev.visits.map(v =>
+        v.id === reportVisit.id ? { ...v, status: "done", report: reportText, photos } : v
+      ),
+    }));
+    setSent(true);
+  };
+
+  const navItems = [
+    { id: "today",    icon: "📋", label: "Сегодня" },
+    { id: "schedule", icon: "📅", label: "График" },
+    { id: "history",  icon: "📚", label: "История" },
+  ];
+
+  const statusLabel = (s) => ({ pending: "Сегодня", done: "Выполнен", scheduled: "Запланировано" }[s] || s);
+  const statusBadge = (s) => ({ pending: "badge-pending", done: "badge-done", scheduled: "badge-scheduled" }[s] || "badge-scheduled");
+
+  return (
+    <div className="app app-g">
+      <div className="topbar">
+        <div className="topbar-inner">
+          <div className="topbar-left">
+            <div className="topbar-logo">Flora<em>Care</em></div>
+            <div className="topbar-user">🌿 {user.name}</div>
+          </div>
+          <button className="topbar-logout" onClick={onLogout}>Выйти</button>
+        </div>
+      </div>
+
+      <div className="content">
+        {/* TODAY */}
+        {page === "today" && (
+          <>
+            <div className="today-hero">
+              <div className="today-greet">Добрый день,<br/>{user.name.split(" ")[0]}!</div>
+              <div className="today-date">15 мая 2025 · Четверг</div>
+              <div className="today-stats">
+                <div className="today-stat"><div className="today-stat-n">{todayVisits.length}</div><div className="today-stat-l">Визитов</div></div>
+                <div className="today-stat"><div className="today-stat-n">{done}</div><div className="today-stat-l">Готово</div></div>
+                <div className="today-stat"><div className="today-stat-n">{pending}</div><div className="today-stat-l">Осталось</div></div>
+              </div>
+            </div>
+
+            {todayVisits.length === 0 && (
+              <div className="empty-state">
+                <div className="empty-icon">🌙</div>
+                <div className="empty-text">На сегодня визитов нет.<br/>Хорошего отдыха!</div>
+              </div>
+            )}
+
+            {todayVisits.map(v => (
+              <div key={v.id} className={`visit-card-g ${v.status === "pending" ? "urgent" : ""}`}>
+                <div className="vc-top">
+                  <div>
+                    <div className="vc-time">{v.time}</div>
+                    <div className="vc-svc">{v.service}</div>
+                  </div>
+                  <span className={`badge ${statusBadge(v.status)}`}>{statusLabel(v.status)}</span>
+                </div>
+                <div className="vc-client">{v.clientName}</div>
+                <div className="vc-addr">📍 {v.address}</div>
+                <div className="vc-actions">
+                  <button className="btn btn-outline" onClick={() => alert("Открыть маршрут на карте")}>🗺 Маршрут</button>
+                  {v.status !== "done"
+                    ? <button className="btn btn-green" onClick={() => openReport(v)}>📸 Отправить отчёт</button>
+                    : <button className="btn btn-done" disabled>✓ Отчёт отправлен</button>
+                  }
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* SCHEDULE */}
+        {page === "schedule" && (
+          <>
+            <div className="sec-title-g">Мой график</div>
+            <div className="sec-sub-g">Все назначенные визиты</div>
+            {myVisits.length === 0 && <div className="empty-state"><div className="empty-icon">📅</div><div className="empty-text">Визитов не назначено</div></div>}
+            {myVisits.map(v => (
+              <div key={v.id} className="visit-card-g">
+                <div className="vc-top">
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#5DB85A" }}>{v.date} · {v.time}</div>
+                    <div className="vc-svc">{v.service}</div>
+                  </div>
+                  <span className={`badge ${statusBadge(v.status)}`}>{statusLabel(v.status)}</span>
+                </div>
+                <div className="vc-client">{v.clientName}</div>
+                <div className="vc-addr">📍 {v.address}</div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* HISTORY */}
+        {page === "history" && (
+          <>
+            <div className="sec-title-g">История</div>
+            <div className="sec-sub-g">Выполненные визиты и отчёты</div>
+            {myVisits.filter(v => v.status === "done").length === 0 && (
+              <div className="empty-state"><div className="empty-icon">📚</div><div className="empty-text">Выполненных визитов пока нет</div></div>
+            )}
+            {myVisits.filter(v => v.status === "done").map(v => (
+              <div key={v.id} className="card-g">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#C0E0C0" }}>{v.clientName}</div>
+                    <div style={{ fontSize: 11, color: "#4A7A5A", marginTop: 2 }}>{v.date} · {v.service}</div>
+                  </div>
+                  <span className="badge badge-done">Выполнен</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#4A7A5A", lineHeight: 1.6, fontWeight: 300, marginBottom: 8 }}>
+                  {v.report ? v.report.slice(0, 100) + "…" : "—"}
+                </div>
+                <div style={{ fontSize: 11, color: "#3A6A4A" }}>📷 {v.photos.length} фото · {v.reportApproved ? "✓ Одобрен" : "На проверке"}</div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* REPORT FORM */}
+        {page === "report" && reportVisit && (
+          <div className="report-wrap">
+            <button className="report-back" onClick={() => setPage("today")}>← Назад к задачам</button>
+
+            {!sent ? (
+              <>
+                <div className="report-client-card">
+                  <div className="rcc-name">{reportVisit.clientName}</div>
+                  <div className="rcc-info">📍 {reportVisit.address}</div>
+                  <div className="rcc-info">🕐 {reportVisit.date} · {reportVisit.time} · {reportVisit.service}</div>
+                </div>
+
+                <label className="form-label">Текст отчёта *</label>
+                <textarea
+                  className="form-textarea"
+                  rows={5}
+                  placeholder="Опишите состояние растений, выполненные работы, рекомендации для клиента..."
+                  value={reportText}
+                  onChange={e => setReportText(e.target.value)}
+                />
+
+                <label className="form-label" style={{ marginTop: 16 }}>Фотографии * ({photos.length}/8)</label>
+                {photos.length > 0 && (
+                  <div className="photos-grid">
+                    {photos.map((p, i) => (
+                      <div key={i} className="photo-thumb">
+                        {p}
+                        <button className="photo-del" onClick={() => removePhoto(i)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="photo-upload" onClick={addPhoto}>
+                  <div className="photo-upload-icon">📷</div>
+                  <div className="photo-upload-text">Нажмите чтобы добавить фото<br/><span style={{ fontSize: 10, color: "#2A4A2A" }}>(в реальном приложении откроется камера)</span></div>
+                </div>
+
+                <button
+                  className="btn btn-full btn-send"
+                  disabled={!reportText.trim() || photos.length === 0}
+                  onClick={sendReport}
+                >
+                  Отправить клиенту и администратору
+                </button>
+                {(!reportText.trim() || photos.length === 0) && (
+                  <div style={{ textAlign: "center", fontSize: 11, color: "#2A4A3A", marginTop: 10 }}>
+                    Заполните текст и добавьте хотя бы одно фото
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="send-success">
+                <div className="success-icon">✅</div>
+                <div className="success-title">Отчёт отправлен!</div>
+                <div className="success-text">
+                  Клиент <strong style={{ color: "#5DB85A" }}>{reportVisit.clientName}</strong> получил уведомление.<br/>
+                  Администратор видит отчёт в панели управления и проверит его.
+                </div>
+                <button className="btn btn-green" style={{ marginTop: 24 }} onClick={() => setPage("today")}>
+                  Вернуться к задачам
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {page !== "report" && (
+        <div className="bottom-nav">
+          {navItems.map(n => (
+            <button key={n.id} className={`nav-btn ${page === n.id ? "nav-btn-active" : "nav-btn-inactive"}`} onClick={() => setPage(n.id)}>
+              <span className="nav-icon">{n.icon}</span>
+              <span className="nav-lbl">{n.label}</span>
+              {page === n.id && <div className="nav-dot" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── ADMIN APP ────────────────────────────────────────────────────────────────
+function AdminApp({ user, db, setDb, onLogout }) {
+  const [page, setPage] = useState("dashboard");
+  const [modalVisit, setModalVisit] = useState(null);
+  const [assignVisitId, setAssignVisitId] = useState(null);
+  const [assignEmpId, setAssignEmpId] = useState("");
+  const [profileEdit, setProfileEdit] = useState(false);
+  const [newVisit, setNewVisit] = useState(false);
+  const [newClient, setNewClient] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const hasPermission = (perm) => !user.permissions || user.permissions.includes(perm);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2400);
+  };
+
+  const done = db.visits.filter(v => v.status === "done");
+  const pending = db.visits.filter(v => v.status === "pending");
+  const reports = done.filter(v => v.report);
+  const unapproved = reports.filter(v => !v.reportApproved);
+  const totalRevenue = db.visits.filter(v=>v.status==="done").length * 280000;
+  const mrr = CLIENTS.length * 1100000;
+
+  const approveReport = (visitId) => {
+    setDb(prev => ({ ...prev, visits: prev.visits.map(v => v.id === visitId ? { ...v, reportApproved: true } : v) }));
+    setModalVisit(null);
+    showToast("✓ Отчёт одобрен");
+  };
+
+  const saveAssign = (visitId) => {
+    if (!assignEmpId) return;
+    const emp = db.employees.find(e => e.id === Number(assignEmpId));
+    setDb(prev => ({ ...prev, visits: prev.visits.map(v => v.id === visitId ? { ...v, assignedTo: emp.id } : v) }));
+    setAssignVisitId(null); setAssignEmpId("");
+    showToast("✓ Сотрудник назначен");
+  };
+
+  const navItems = [
+    { id: "dashboard", icon: "📊", label: "Сводка" },
+    { id: "visits",    icon: "📅", label: "Визиты" },
+    { id: "reports",   icon: "📸", label: "Отчёты" },
+    { id: "employees", icon: "👥", label: "Команда" },
+    { id: "clients",   icon: "🌿", label: "Клиенты" },
+    { id: "profile",   icon: "👤", label: "Профиль" },
+  ].filter(n => hasPermission(n.id));
+
+  const bdg = (s) => ({pending:"badge-pending-a",done:"badge-done-a",scheduled:"badge-scheduled-a"}[s]);
+  const lbl = (s) => ({pending:"Сегодня",done:"Выполнен",scheduled:"Запланировано"}[s]||s);
+
+  const isFullAdmin = user.permissions && user.permissions.includes("finance");
+
+  return (
+    <div className="app app-a">
+      {/* TOAST */}
+      {toast && (
+        <div style={{position:"fixed",bottom:110,left:"50%",transform:"translateX(-50%)",
+          background:"#18281A",color:"#90CF8D",fontSize:13,fontWeight:500,
+          padding:"12px 24px",borderRadius:40,boxShadow:"0 4px 24px rgba(0,0,0,.2)",
+          zIndex:999,whiteSpace:"nowrap",animation:"fadeIn .3s ease"}}>
+          {toast}
+        </div>
+      )}
+
+      {/* TOPBAR */}
+      <div className="topbar">
+        <div className="topbar-inner">
+          <div className="topbar-left">
+            <div className="topbar-logo">Flora<em>Care</em></div>
+          </div>
+          <div className="topbar-right">
+            <div style={{background:"rgba(77,145,73,.15)",color:"#90CF8D",fontSize:10,fontWeight:700,
+              padding:"3px 10px",borderRadius:20,letterSpacing:"0.5px",textTransform:"uppercase"}}>
+              {isFullAdmin ? "Гл. Администратор" : "Администратор"}
+            </div>
+            <button className="topbar-logout" onClick={onLogout}>Выйти</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="content">
+
+        {/* ── DASHBOARD ── */}
+        {page === "dashboard" && (
+          <>
+            <div className="sec-title-a">Добрый день, {user.name.split(" ")[0]}!</div>
+            <div className="sec-sub-a">15 мая 2025 · Оперативный контроль</div>
+
+            {/* KPI */}
+            <div className="kpi-row">
+              <div className="kpi-card">
+                <div className="kpi-n">{db.visits.length}</div>
+                <div className="kpi-l">Визитов всего</div>
+                <div className="kpi-tag kpi-up">↑ +3 за неделю</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-n">{done.length}</div>
+                <div className="kpi-l">Выполнено</div>
+                <div className="kpi-tag kpi-up">✓ С отчётами</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-n">{pending.length}</div>
+                <div className="kpi-l">Сегодня</div>
+                <div className="kpi-tag kpi-warn">⏳ Ожидают</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-n">{unapproved.length}</div>
+                <div className="kpi-l">Отчётов на проверке</div>
+                <div className={`kpi-tag ${unapproved.length>0?"kpi-warn":"kpi-up"}`}>
+                  {unapproved.length>0?"⚠ Требуют проверки":"✓ Проверено"}
+                </div>
+              </div>
+            </div>
+
+            {/* Finance block — only full admin */}
+            {isFullAdmin && (
+              <div className="card-a" style={{marginBottom:12}}>
+                <div className="card-title-a">💰 Финансы месяца</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                  <div style={{background:"#F0EBE2",borderRadius:14,padding:14,textAlign:"center"}}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,color:"#18281A",fontWeight:500}}>
+                      {(mrr/1000000).toFixed(1)} млн
+                    </div>
+                    <div style={{fontSize:11,color:"#7A9A7A",marginTop:3}}>MRR (выручка)</div>
+                  </div>
+                  <div style={{background:"#EAF3EA",borderRadius:14,padding:14,textAlign:"center"}}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,color:"#2D5A3D",fontWeight:500}}>
+                      {((mrr-61000000)/1000000).toFixed(1)} млн
+                    </div>
+                    <div style={{fontSize:11,color:"#7A9A7A",marginTop:3}}>Прибыль</div>
+                  </div>
+                  <div style={{background:"#F5F2EC",borderRadius:14,padding:14,textAlign:"center"}}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,color:"#18281A",fontWeight:500}}>
+                      61 млн
+                    </div>
+                    <div style={{fontSize:11,color:"#7A9A7A",marginTop:3}}>Расходы</div>
+                  </div>
+                  <div style={{background:"#F5F2EC",borderRadius:14,padding:14,textAlign:"center"}}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,color:"#C9A84C",fontWeight:500}}>
+                      {CLIENTS.length}
+                    </div>
+                    <div style={{fontSize:11,color:"#7A9A7A",marginTop:3}}>Активных клиентов</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Team status */}
+            <div className="card-a" style={{marginBottom:12}}>
+              <div className="card-title-a">👥 Команда сейчас</div>
+              {db.employees.map(e => {
+                const eVisits = db.visits.filter(v => v.assignedTo === e.id && v.date === "15 мая");
+                const eDone   = eVisits.filter(v => v.status === "done").length;
+                return (
+                  <div key={e.id} className="emp-row-a">
+                    <div className="emp-av" style={{background:e.avatar||"#2D5A3D"}}>{e.short}</div>
+                    <div style={{flex:1}}>
+                      <div className="emp-name-a">{e.name}</div>
+                      <div className="emp-stats-a">Сегодня: {eVisits.length} визитов · выполнено {eDone}</div>
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+                      <div className={`emp-dot ${e.active?"emp-online":"emp-offline"}`}/>
+                      <div style={{fontSize:10,color:e.active?"#5DB85A":"#AAAAAA"}}>{e.active?"Онлайн":"Офлайн"}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Last reports */}
+            {reports.length > 0 && (
+              <div className="card-a">
+                <div className="card-title-a">📸 Последние отчёты</div>
+                {reports.slice(0,3).map(v => {
+                  const emp = db.employees.find(e => e.id === v.assignedTo);
+                  return (
+                    <div key={v.id} className="rep-row" onClick={() => setModalVisit(v)}>
+                      <div className="rep-emoji">🌿</div>
+                      <div className="rep-info">
+                        <div className="rep-client">{v.clientName}</div>
+                        <div className="rep-meta">{emp?.name||"—"} · {v.date} · 📷 {v.photos.length}</div>
+                      </div>
+                      <span className={`badge ${v.reportApproved?"badge-approved":"badge-warn"}`}>
+                        {v.reportApproved?"✓ OK":"Проверить"}
+                      </span>
+                      <span className="rep-arrow">›</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── VISITS ── */}
+        {page === "visits" && (
+          <>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div>
+                <div className="sec-title-a">Все визиты</div>
+                <div className="sec-sub-a">Расписание и назначения</div>
+              </div>
+              {isFullAdmin && (
+                <button onClick={()=>showToast("✓ Форма добавления визита")}
+                  style={{background:"#2D5A3D",color:"#8ACBA0",border:"none",borderRadius:20,
+                    padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer"}}>
+                  + Новый
+                </button>
+              )}
+            </div>
+            <div className="card-a" style={{marginTop:12}}>
+              {db.visits.map(v => {
+                const emp = db.employees.find(e => e.id === v.assignedTo);
+                return (
+                  <div key={v.id}>
+                    <div className="visit-row-a">
+                      <div>
+                        <div className="vra-time">{v.time}</div>
+                        <div style={{fontSize:10,color:"#9A9A9A"}}>{v.date}</div>
+                      </div>
+                      <div className="vra-client" style={{flex:1}}>
+                        <div className="vra-name">{v.clientName}</div>
+                        <div className="vra-emp">{emp?.name||"Не назначен"}</div>
+                        <div className="vra-svc">{v.service}</div>
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                        <span className={`badge ${bdg(v.status)}`}>{lbl(v.status)}</span>
+                        {v.status !== "done" && (
+                          <button onClick={()=>{setAssignVisitId(v.id);setAssignEmpId(String(v.assignedTo));}}
+                            style={{background:"#2D5A3D",color:"#8ACBA0",border:"none",borderRadius:20,
+                              padding:"4px 10px",fontSize:9,fontWeight:700,cursor:"pointer"}}>
+                            Назначить
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {assignVisitId === v.id && (
+                      <div style={{background:"#F8F5F0",borderRadius:14,padding:14,marginBottom:8}}>
+                        <div style={{fontSize:11,fontWeight:700,color:"#7A9A7A",marginBottom:8,letterSpacing:"0.5px",textTransform:"uppercase"}}>Назначить сотрудника</div>
+                        <select style={{width:"100%",background:"#F5F2EC",border:"1.5px solid #E0DCD4",borderRadius:10,padding:"10px 12px",fontSize:14,color:"#1A3A1A",marginBottom:10,fontFamily:"inherit"}}
+                          value={assignEmpId} onChange={e=>setAssignEmpId(e.target.value)}>
+                          <option value="">— выберите —</option>
+                          {db.employees.map(e=><option key={e.id} value={e.id}>{e.name}</option>)}
+                        </select>
+                        <div style={{display:"flex",gap:8}}>
+                          <button onClick={()=>saveAssign(v.id)} style={{flex:1,padding:"10px",background:"#2D5A3D",color:"#fff",border:"none",borderRadius:30,fontSize:12,fontWeight:700,cursor:"pointer"}}>Сохранить</button>
+                          <button onClick={()=>setAssignVisitId(null)} style={{flex:1,padding:"10px",background:"#F0ECE4",color:"#7A9A7A",border:"none",borderRadius:30,fontSize:12,cursor:"pointer"}}>Отмена</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── REPORTS ── */}
+        {page === "reports" && (
+          <>
+            <div className="sec-title-a">Фотоотчёты</div>
+            <div className="sec-sub-a">Проверка и одобрение</div>
+            {reports.length === 0 && (
+              <div style={{textAlign:"center",padding:"40px",color:"#7A9A7A",fontSize:14,fontWeight:300}}>
+                <div style={{fontSize:40,marginBottom:12}}>📸</div>
+                Отчётов пока нет.<br/>
+                <span style={{fontSize:12}}>Перейдите в приложение садовника и отправьте отчёт!</span>
+              </div>
+            )}
+            <div className="card-a">
+              {reports.map(v => {
+                const emp = db.employees.find(e => e.id === v.assignedTo);
+                return (
+                  <div key={v.id} className="rep-row" onClick={()=>setModalVisit(v)}>
+                    <div className="rep-emoji">🌿</div>
+                    <div className="rep-info">
+                      <div className="rep-client">{v.clientName}</div>
+                      <div className="rep-meta">{emp?.name||"—"} · {v.date} · 📷 {v.photos.length} фото</div>
+                    </div>
+                    <span className={`badge ${v.reportApproved?"badge-approved":"badge-warn"}`}>
+                      {v.reportApproved?"✓ Одобрен":"На проверке"}
+                    </span>
+                    <span className="rep-arrow">›</span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── EMPLOYEES ── */}
+        {page === "employees" && (
+          <>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div>
+                <div className="sec-title-a">Команда</div>
+                <div className="sec-sub-a">Управление сотрудниками</div>
+              </div>
+              {isFullAdmin && (
+                <button onClick={()=>showToast("✓ Форма добавления сотрудника")}
+                  style={{background:"#2D5A3D",color:"#8ACBA0",border:"none",borderRadius:20,
+                    padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer"}}>
+                  + Добавить
+                </button>
+              )}
+            </div>
+            <div className="card-a" style={{marginTop:12}}>
+              {db.employees.map(e => {
+                const total = db.visits.filter(v => v.assignedTo === e.id).length;
+                const doneE = db.visits.filter(v => v.assignedTo === e.id && v.status==="done").length;
+                const todayV = db.visits.filter(v => v.assignedTo === e.id && v.date==="15 мая");
+                return (
+                  <div key={e.id} className="emp-row-a" style={{padding:"14px 0",cursor:"pointer"}}
+                    onClick={()=>showToast(`${e.name} — ${total} визитов, ${doneE} выполнено`)}>
+                    <div className="emp-av" style={{width:44,height:44,fontSize:14,background:e.avatar||"#2D5A3D"}}>{e.short}</div>
+                    <div style={{flex:1}}>
+                      <div className="emp-name-a" style={{fontSize:15}}>{e.name}</div>
+                      <div className="emp-stats-a">Всего визитов: {total} · Сегодня: {todayV.length} · Выполнено: {doneE}</div>
+                      {isFullAdmin && <div style={{fontSize:11,color:"#4D9149",marginTop:2}}>ЗП: 5 000 000 сум/мес</div>}
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+                      <div className={`emp-dot ${e.active?"emp-online":"emp-offline"}`} style={{width:10,height:10}}/>
+                      <div style={{fontSize:10,color:e.active?"#5DB85A":"#AAAAAA"}}>{e.active?"Онлайн":"Офлайн"}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── CLIENTS ── */}
+        {page === "clients" && (
+          <>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div>
+                <div className="sec-title-a">Клиенты</div>
+                <div className="sec-sub-a">База подписчиков · {CLIENTS.length} клиентов</div>
+              </div>
+              {isFullAdmin && (
+                <button onClick={()=>showToast("✓ Форма добавления клиента")}
+                  style={{background:"#2D5A3D",color:"#8ACBA0",border:"none",borderRadius:20,
+                    padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer"}}>
+                  + Добавить
+                </button>
+              )}
+            </div>
+            <div className="card-a" style={{marginTop:12}}>
+              {CLIENTS.map(c => (
+                <div key={c.id} className="client-row" style={{cursor:"pointer"}}
+                  onClick={()=>showToast(`${c.name} · ${c.plan} · ${c.plants} растений`)}>
+                  <div style={{flex:1}}>
+                    <div className="client-name">{c.name}</div>
+                    <div className="client-plan">Тариф: {c.plan} · 🪴 {c.plants} · с {c.since}</div>
+                  </div>
+                  <div>
+                    <div className="client-phone">{c.phone}</div>
+                    <div style={{fontSize:10,color:"#4D9149",textAlign:"right",marginTop:3}}>
+                      {c.plan==="Макс"?"2 000 000":c.plan==="Стандарт"?"1 100 000":"600 000"} сум/мес
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {isFullAdmin && (
+                <div style={{padding:"12px 0",borderTop:"1px solid #F0ECE4",textAlign:"center"}}>
+                  <div style={{fontFamily:"'Fraunces',serif",fontSize:18,color:"#18281A",marginBottom:2}}>
+                    {(CLIENTS.reduce((s,c)=>s+(c.plan==="Макс"?2000000:c.plan==="Стандарт"?1100000:600000),0)/1000000).toFixed(1)} млн сум
+                  </div>
+                  <div style={{fontSize:11,color:"#7A9A7A"}}>MRR по текущей базе</div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ── PROFILE ── */}
+        {page === "profile" && (
+          <>
+            <div className="sec-title-a">Мой профиль</div>
+            <div className="sec-sub-a">{user.fullTitle||"Администратор"}</div>
+
+            {/* Profile card */}
+            <div style={{background:"#18281A",borderRadius:26,padding:24,marginBottom:14,position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",top:-60,right:-60,width:180,height:180,
+                background:"radial-gradient(circle,rgba(77,145,73,.2) 0%,transparent 70%)",pointerEvents:"none"}}/>
+              <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20}}>
+                <div style={{width:60,height:60,borderRadius:"50%",background:user.avatar||"#2D5A3D",
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontFamily:"'Fraunces',serif",fontSize:22,color:"#EEE8DC",flexShrink:0}}>
+                  {user.short}
+                </div>
+                <div>
+                  <div style={{fontFamily:"'Fraunces',serif",fontSize:20,color:"#EEE8DC",marginBottom:2}}>{user.name}</div>
+                  <div style={{fontSize:11,color:"#4A7A4A"}}>{user.fullTitle||"Администратор"} · FloraCare</div>
+                </div>
+                <div style={{marginLeft:"auto",background:"rgba(77,145,73,.18)",border:"1px solid rgba(77,145,73,.28)",
+                  color:"#90CF8D",fontSize:11,fontWeight:500,padding:"5px 14px",borderRadius:20}}>
+                  {isFullAdmin?"Полный доступ":"Ограниченный"}
+                </div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+                {[
+                  {n:db.visits.length,l:"Визитов"},
+                  {n:CLIENTS.length,l:"Клиентов"},
+                  {n:db.employees.length,l:"Сотрудников"}
+                ].map((s,i)=>(
+                  <div key={i} style={{textAlign:"center"}}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,color:"#EEE8DC",lineHeight:1}}>{s.n}</div>
+                    <div style={{fontSize:10,color:"#4A7A4A",marginTop:3}}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact info */}
+            <div style={{background:"#fff",borderRadius:20,padding:"4px 18px",marginBottom:12,boxShadow:"0 2px 12px rgba(0,0,0,.04)"}}>
+              {[
+                {icon:"📧",label:"Email",val:user.email||"—"},
+                {icon:"📱",label:"Телефон",val:user.phone||"—"},
+                {icon:"📍",label:"Город",val:"Ташкент"},
+              ].map((f,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 0",
+                  borderBottom:i<2?"1px solid #F0EBE2":"none"}}>
+                  <div style={{fontSize:18,width:28,textAlign:"center"}}>{f.icon}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10,fontWeight:600,color:"#A09888",letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:2}}>{f.label}</div>
+                    <div style={{fontSize:15,color:"#18281A"}}>{f.val}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Permissions */}
+            <div style={{background:"#fff",borderRadius:20,padding:16,marginBottom:12,boxShadow:"0 2px 12px rgba(0,0,0,.04)"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#A09888",letterSpacing:"1px",textTransform:"uppercase",marginBottom:12}}>Права доступа</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+                {(user.permissions||[]).map((p,i)=>(
+                  <span key={i} style={{background:"#EAF3EA",color:"#2D5A3D",fontSize:11,fontWeight:500,padding:"4px 12px",borderRadius:20}}>
+                    {{dashboard:"📊 Дашборд",visits:"📅 Визиты",reports:"📸 Отчёты",employees:"👥 Команда",
+                      clients:"🌿 Клиенты",settings:"⚙️ Настройки",finance:"💰 Финансы",analytics:"📈 Аналитика"}[p]||p}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Menu */}
+            <div>
+              {[
+                {ico:"🔔",bg:"#EAF3EA",lbl:"Уведомления"},
+                {ico:"🔒",bg:"#F0EBE2",lbl:"Сменить пароль"},
+                ...(isFullAdmin?[{ico:"⚙️",bg:"#F5F2EC",lbl:"Настройки системы"},{ico:"📊",bg:"#DDEEF8",lbl:"Аналитика и отчёты"}]:[]),
+                {ico:"🚪",bg:"#FFEEDD",lbl:"Выйти из аккаунта"},
+              ].map((m,i,arr)=>(
+                <div key={i} onClick={i===arr.length-1?onLogout:()=>showToast(`${m.lbl} — раздел открыт`)}
+                  style={{background:"#fff",borderRadius:18,padding:"15px 17px",marginBottom:8,
+                    display:"flex",alignItems:"center",gap:13,cursor:"pointer",
+                    boxShadow:"0 1px 10px rgba(0,0,0,.04)"}}>
+                  <div style={{width:40,height:40,borderRadius:14,background:m.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{m.ico}</div>
+                  <div style={{flex:1,fontSize:14,color:"#18281A"}}>{m.lbl}</div>
+                  <div style={{color:"#C8C0B8",fontSize:17}}>›</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+      </div>
+
+      {/* BOTTOM NAV */}
+      <div className="bottom-nav">
+        {navItems.map(n=>(
+          <button key={n.id} className={`nav-btn ${page===n.id?"nav-btn-active":"nav-btn-inactive"}`} onClick={()=>setPage(n.id)}>
+            <span className="nav-icon">{n.icon}</span>
+            <span className="nav-lbl">{n.label}</span>
+            {page===n.id&&<div className="nav-dot"/>}
+          </button>
+        ))}
+      </div>
+
+      {/* REPORT MODAL */}
+      {modalVisit && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.55)",zIndex:500,
+          display:"flex",alignItems:"flex-end",justifyContent:"center",padding:0}}>
+          <div style={{background:"#fff",borderRadius:"24px 24px 0 0",padding:"28px 24px 40px",
+            width:"100%",maxWidth:430,maxHeight:"85vh",overflowY:"auto"}}>
+            <div style={{width:40,height:4,background:"#E0E0E0",borderRadius:4,margin:"0 auto 20px"}}/>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:20,color:"#1A3A1A",marginBottom:2}}>{modalVisit.clientName}</div>
+            <div style={{fontSize:12,color:"#7A9A7A",fontWeight:300,marginBottom:18}}>
+              {db.employees.find(e=>e.id===modalVisit.assignedTo)?.name||"—"} · {modalVisit.date} · {modalVisit.service}
+            </div>
+            <div style={{background:"#F5F2EC",borderRadius:14,padding:16,marginBottom:14,fontSize:13,color:"#3A5A3A",lineHeight:1.7,fontWeight:300}}>
+              {modalVisit.report}
+            </div>
+            {modalVisit.photos.length>0&&(
+              <>
+                <div style={{fontSize:11,fontWeight:700,color:"#7A9A7A",letterSpacing:1,textTransform:"uppercase",marginBottom:8}}>
+                  Фотографии ({modalVisit.photos.length})
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:16}}>
+                  {modalVisit.photos.map((p,i)=>(
+                    <div key={i} style={{background:"#E8F5E9",borderRadius:12,aspectRatio:1,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>{p}</div>
+                  ))}
+                </div>
+              </>
+            )}
+            <div style={{display:"flex",gap:8}}>
+              {!modalVisit.reportApproved
+                ?<button onClick={()=>approveReport(modalVisit.id)} style={{flex:1,padding:12,borderRadius:40,border:"none",background:"#2D5A3D",color:"#8ACBA0",fontFamily:"inherit",fontSize:12,fontWeight:700,cursor:"pointer"}}>✓ Одобрить</button>
+                :<button style={{flex:1,padding:12,borderRadius:40,border:"none",background:"#E8F5E9",color:"#2D7A3D",fontFamily:"inherit",fontSize:12,fontWeight:700,cursor:"default"}}>✓ Одобрен</button>
+              }
+              <button onClick={()=>showToast("⚠ Отчёт помечен для доработки")} style={{flex:1,padding:12,borderRadius:40,border:"none",background:"#FFF3CD",color:"#856404",fontFamily:"inherit",fontSize:12,fontWeight:700,cursor:"pointer"}}>⚠ Пометить</button>
+              <button onClick={()=>setModalVisit(null)} style={{flex:1,padding:12,borderRadius:40,border:"none",background:"#F0ECE4",color:"#7A9A7A",fontFamily:"inherit",fontSize:12,cursor:"pointer"}}>Закрыть</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ─── ROOT ─────────────────────────────────────────────────────────────────────
+function StaffApp() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [db, setDb] = useState({
+    visits: INIT_VISITS,
+    employees: USERS.filter(u => u.role === "gardener").map((u, i) => ({
+      id: u.id, name: u.name, short: u.short, active: i < 2, avatar: u.avatar,
+    })),
+  });
+
+  return (
+    <>
+      <style>{CSS}</style>
+      {!currentUser && <LoginScreen onLogin={setCurrentUser} />}
+      {currentUser?.role === "gardener" && (
+        <GardenerApp user={currentUser} db={db} setDb={setDb} onLogout={() => setCurrentUser(null)} />
+      )}
+      {currentUser?.role === "admin" && (
+        <AdminApp user={currentUser} db={db} setDb={setDb} onLogout={() => setCurrentUser(null)} />
+      )}
+    </>
+  );
+}
+
+
+
+
+
+// ═══════════════════════════════════════════════════
+// LAUNCHER
+// ═══════════════════════════════════════════════════
+window.__launchApp = function(appName) {
+  const root = document.getElementById('mobile-root');
+  root.style.display = 'block';
+  const r = ReactDOM.createRoot(root);
+  if (appName === 'client') {
+    r.render(React.createElement(ClientApp));
+  } else {
+    r.render(React.createElement(StaffApp));
+  }
+};
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DEVICE DETECTION & ROUTING
+// ═══════════════════════════════════════════════════
+function detectDevice() {
+  const ua = navigator.userAgent.toLowerCase();
+  const w  = window.innerWidth;
+  
+  const isIOS     = /iphone|ipad|ipod/.test(ua);
+  const isAndroid = /android/.test(ua);
+  const isSamsung = /samsung|sm-|sgh-|sch-|gt-/.test(ua);
+  const isMobile  = isIOS || isAndroid || w <= 768;
+  const isTablet  = (isIOS && !/iphone/.test(ua)) || (isAndroid && w >= 768);
+  const isDesktop = !isMobile || (isTablet && w >= 1024);
+
+  let deviceName = 'Устройство';
+  let deviceIcon = '📱';
+
+  if (isIOS && /iphone/.test(ua)) { deviceName = 'iPhone'; deviceIcon = '📱'; }
+  else if (isIOS) { deviceName = 'iPad'; deviceIcon = '📟'; }
+  else if (isSamsung) { deviceName = 'Samsung'; deviceIcon = '📱'; }
+  else if (isAndroid) { deviceName = 'Android'; deviceIcon = '📱'; }
+  else if (w > 1200) { deviceName = 'Компьютер / Mac'; deviceIcon = '🖥️'; }
+  else if (w > 768) { deviceName = 'Планшет'; deviceIcon = '📟'; }
+
+  return { isMobile: isMobile && !isTablet, isDesktop: isDesktop || isTablet, deviceName, deviceIcon };
+}
+
+function showRolePicker() {
+  // hide mobile app
+  document.getElementById('mobile-root').style.display = 'none';
+  document.getElementById('back-btn').classList.remove('visible');
+  document.getElementById('role-picker').classList.remove('hidden');
+}
+
+function launchMobileApp(appName) {
+  document.getElementById('role-picker').classList.add('hidden');
+  document.getElementById('back-btn').classList.add('visible');
+  document.getElementById('mobile-root').style.display = 'block';
+  // Wait for Babel to finish compiling, then launch
+  const tryLaunch = setInterval(() => {
+    if (window.__launchApp) {
+      clearInterval(tryLaunch);
+      window.__launchApp(appName);
+    }
+  }, 100);
+}
+
+function launchWebsite() {
+  document.getElementById('role-picker').classList.add('hidden');
+  document.getElementById('back-btn').classList.add('visible');
+  document.getElementById('desktop-root').style.display = 'block';
+  document.body.classList.remove('mode-mobile');
+  document.body.classList.add('mode-desktop');
+  document.getElementById('website-css').disabled = false;
+}
+
+// ── INIT ──
+window.addEventListener('load', function() {
+  const { isMobile, isDesktop, deviceName, deviceIcon } = detectDevice();
+  const label = document.getElementById('detect-label');
+  label.textContent = deviceIcon + ' ' + deviceName + ' обнаружен';
+
+  setTimeout(() => {
+    const screen = document.getElementById('detect-screen');
+    screen.classList.add('hidden');
+
+    if (isDesktop) {
+      // Desktop → сразу сайт
+      document.body.classList.add('mode-desktop');
+      document.getElementById('desktop-root').style.display = 'block';
+      setTimeout(() => { screen.remove(); }, 400);
+    } else {
+      // Mobile → выбор роли
+      document.body.classList.add('mode-mobile');
+      const badge = document.getElementById('device-badge');
+      badge.textContent = deviceIcon + ' ' + deviceName;
+      document.getElementById('role-picker').classList.remove('hidden');
+      setTimeout(() => { screen.remove(); }, 400);
+    }
+  }, 1200);
+});
+</script>
+
+</body>
+</html>
