@@ -2,3 +2,6 @@ node_modules/
 .env
 .DS_Store
 *.log
+database.sqlite
+dist/
+index.monolithic.html
