@@ -1,0 +1,589 @@
+{
+  "name": "FloraCare 🌿 Мульти-Агентная Команда",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "chatIds": "63236216"
+        }
+      },
+      "id": "node-trigger-telegram",
+      "name": "📱 Задача от Директора",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        240
+      ],
+      "webhookId": "floracare-telegram-webhook",
+      "credentials": {
+        "telegramApi": {
+          "id": "r9oB4KPKS2wsw25B",
+          "name": "flora88bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  message: $('📱 Задача от Директора').item.json.message.text,\n  chatId: $('📱 Задача от Директора').item.json.message.chat.id,\n  messageId: $('📱 Задача от Директора').item.json.message.message_id\n};"
+      },
+      "id": "node-init",
+      "name": "Initialize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://endless-websites-sri-arrival.trycloudflare.com/chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"instruction\": \"={{ \\\"Analyze this request and decompose it: \\\" + $json.message }}\",\n  \"workspace_path\": \"/Users/nuriddin/Desktop/антигравити файлы/floracare-app\",\n  \"system_instructions\": \"You are the FloraCare Orchestrator Agent. Your task is to analyze user requests for the FloraCare app (Vite+React frontend, Express backend, SQLite database). Determine which specialized agents need to run (designer, brandmaker, developer, tester) and what specific task description should be sent to each. Output your analysis and specific tasks for each agent in JSON format ONLY: {\\\"tasks\\\": {\\\"designer\\\": \\\"task description or empty\\\", \\\"brandmaker\\\": \\\"task description or empty\\\", \\\"developer\\\": \\\"task description or empty\\\", \\\"tester\\\": \\\"task description or empty\\\"}}.\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Bypass-Tunnel-Reminder",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "id": "node-orchestrator",
+      "name": "🧠 Оркестратор",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        340,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let responseText = $('🧠 Оркестратор').item.json.response || '';\nresponseText = responseText.replace(/```json/gi, '').replace(/```/gi, '').trim();\nlet tasks = {};\ntry {\n  let parsed = JSON.parse(responseText);\n  tasks = parsed.tasks || {};\n} catch (e) {\n  tasks = {\n    designer: \"\",\n    brandmaker: \"\",\n    developer: \"\",\n    tester: \"\"\n  };\n}\nreturn {\n  originalMessage: $('Initialize').item.json.message,\n  chatId: $('Initialize').item.json.chatId,\n  messageId: $('Initialize').item.json.messageId,\n  tasks: tasks\n};"
+      },
+      "id": "node-parse-tasks",
+      "name": "Parse Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Parse Tasks').item.json.tasks.designer }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "cond-design-not-empty"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-design",
+      "name": "If Design?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        680,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://endless-websites-sri-arrival.trycloudflare.com/chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"instruction\": \"={{ \\\"Execute task: \\\" + $('Parse Tasks').item.json.tasks.designer }}\",\n  \"workspace_path\": \"/Users/nuriddin/Desktop/антигравити файлы/floracare-app\",\n  \"system_instructions\": \"You are the FloraCare Design Agent. You focus on UI design, layout, styling, and visual excellence. You operate on the codebase in /Users/nuriddin/Desktop/антигравити файлы/floracare-app. You can read files, write styles to src/styles/ global.css/client.css/website.css or components, or generate assets/images. Return a detailed log of your design changes and findings. If the task is empty, just output: No design changes requested.\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Bypass-Tunnel-Reminder",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "id": "node-designer",
+      "name": "🎨 Дизайнер",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        860,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Parse Tasks').item.json.tasks.brandmaker }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "cond-brand-not-empty"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-brand",
+      "name": "If Brand?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://endless-websites-sri-arrival.trycloudflare.com/chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"instruction\": \"={{ \\\"Execute task: \\\" + $('Parse Tasks').item.json.tasks.brandmaker }}\",\n  \"workspace_path\": \"/Users/nuriddin/Desktop/антигравити файлы/floracare-app\",\n  \"system_instructions\": \"You are the FloraCare Brandmaker Agent. You focus on branding, identity, naming, copywriting, marketing text, and style guides. You operate on the codebase in /Users/nuriddin/Desktop/антигравити файлы/floracare-app. You can write brand documents, edit components to include brand copy, or create assets. Return details of the branding choices and assets created. If the task is empty, just output: No branding changes requested.\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Bypass-Tunnel-Reminder",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "id": "node-brandmaker",
+      "name": "🏷️ Брендмейкер",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1220,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Parse Tasks').item.json.tasks.developer }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "cond-dev-not-empty"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-dev",
+      "name": "If Dev?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1400,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://endless-websites-sri-arrival.trycloudflare.com/chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"instruction\": \"={{ \\\"Execute task: \\\" + $('Parse Tasks').item.json.tasks.developer }}\",\n  \"workspace_path\": \"/Users/nuriddin/Desktop/антигравити файлы/floracare-app\",\n  \"system_instructions\": \"You are the FloraCare Developer Agent. You focus on coding, implementing features, fixing bugs, and database queries. You operate on the codebase in /Users/nuriddin/Desktop/антигравити файлы/floracare-app. Return details of the code modifications. If the task is empty, just output: No coding changes requested.\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Bypass-Tunnel-Reminder",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "id": "node-developer",
+      "name": "💻 Разработчик",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1580,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Parse Tasks').item.json.tasks.tester }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "cond-test-not-empty"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-test",
+      "name": "If Test?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1760,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://endless-websites-sri-arrival.trycloudflare.com/chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"instruction\": \"={{ \\\"Execute task: \\\" + $('Parse Tasks').item.json.tasks.tester }}\",\n  \"workspace_path\": \"/Users/nuriddin/Desktop/антигравити файлы/floracare-app\",\n  \"system_instructions\": \"You are the FloraCare Tester Agent. You focus on quality assurance, writing and running tests, and verifying code changes. You operate on the codebase in /Users/nuriddin/Desktop/антигравити файлы/floracare-app. Return test output and verification results. If the task is empty, just output: No testing changes requested.\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Bypass-Tunnel-Reminder",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "id": "node-tester",
+      "name": "🧪 Тестировщик",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1940,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://endless-websites-sri-arrival.trycloudflare.com/chat",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"instruction\": \"={{ \\\"Original User Task: \\\" + $('Parse Tasks').item.json.originalMessage + \\\"\\\\n\\\\nOutputs of the agents:\\\\n- Designer: \\\" + ($('🎨 Дизайнер').item?.json?.response || 'N/A') + \\\"\\\\n- Brandmaker: \\\" + ($('🏷️ Брендмейкер').item?.json?.response || 'N/A') + \\\"\\\\n- Developer: \\\" + ($('💻 Разработчик').item?.json?.response || 'N/A') + \\\"\\\\n- Tester: \\\" + ($('🧪 Тестировщик').item?.json?.response || 'N/A') }}\",\n  \"workspace_path\": \"/Users/nuriddin/Desktop/антигравити файлы/floracare-app\",\n  \"system_instructions\": \"You are the FloraCare Reporter Agent. Your job is to read the outputs of all the specialized agents (Designer, Brandmaker, Developer, Tester) who worked on the codebase. Analyze what was done, merge the findings, and generate a beautiful, comprehensive markdown report for the user summarizing the design changes, brand assets, code updates, and test results. Use Russian language for the final user report. Be concise but clear.\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Bypass-Tunnel-Reminder",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "id": "node-reporter",
+      "name": "📊 Репортер",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2120,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Tasks').item.json.chatId }}",
+        "text": "=🤖 *Отчет о проделанной работе FloraCare* 🌿\n\n{{ $json.response }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown",
+          "reply_to_message_id": "={{ $('Parse Tasks').item.json.messageId }}"
+        }
+      },
+      "id": "node-telegram-send",
+      "name": "💬 Отправить отчет",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2300,
+        240
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "r9oB4KPKS2wsw25B",
+          "name": "flora88bot API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "📱 Задача от Директора": {
+      "main": [
+        [
+          {
+            "node": "Initialize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize": {
+      "main": [
+        [
+          {
+            "node": "🧠 Оркестратор",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Оркестратор": {
+      "main": [
+        [
+          {
+            "node": "Parse Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Tasks": {
+      "main": [
+        [
+          {
+            "node": "If Design?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Design?": {
+      "main": [
+        [
+          {
+            "node": "🎨 Дизайнер",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If Brand?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Дизайнер": {
+      "main": [
+        [
+          {
+            "node": "If Brand?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Brand?": {
+      "main": [
+        [
+          {
+            "node": "🏷️ Брендмейкер",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If Dev?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🏷️ Брендмейкер": {
+      "main": [
+        [
+          {
+            "node": "If Dev?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Dev?": {
+      "main": [
+        [
+          {
+            "node": "💻 Разработчик",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If Test?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💻 Разработчик": {
+      "main": [
+        [
+          {
+            "node": "If Test?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Test?": {
+      "main": [
+        [
+          {
+            "node": "🧪 Тестировщик",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📊 Репортер",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧪 Тестировщик": {
+      "main": [
+        [
+          {
+            "node": "📊 Репортер",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Репортер": {
+      "main": [
+        [
+          {
+            "node": "💬 Отправить отчет",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
