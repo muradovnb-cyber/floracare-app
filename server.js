@@ -170,6 +170,11 @@ app.patch('/api/visits/:id', authenticateToken, async (req, res) => {
   const visitId = req.params.id;
   const { gardener_id, status } = req.body;
 
+  // БАГ #1 FIX: валидация — нельзя отправить пустое тело
+  if (gardener_id === undefined && status === undefined) {
+    return res.status(400).json({ error: 'Укажите хотя бы одно поле для обновления: gardener_id или status' });
+  }
+
   try {
     const visits = await db.query('SELECT * FROM visits WHERE id = ?', [visitId]);
     if (visits.length === 0) {
@@ -304,13 +309,39 @@ app.get('/api/payments', authenticateToken, async (req, res) => {
     if (req.user.role === 'client') {
       sql += ' WHERE user_id = ?';
       params.push(req.user.id);
+    } else if (req.user.role === 'gardener') {
+      // БАГ #2 FIX: садовник видит только платежи своих клиентов
+      sql += ` WHERE user_id IN (
+        SELECT DISTINCT client_id FROM visits WHERE gardener_id = ?
+      )`;
+      params.push(req.user.id);
     }
+    // admin видит все платежи без фильтра
     sql += ' ORDER BY id DESC';
     const payments = await db.query(sql, params);
     res.json(payments);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Ошибка получения платежей' });
+  }
+});
+
+// БАГ #3 FIX: DELETE /api/visits/:id — только для admin
+app.delete('/api/visits/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Удаление визитов доступно только администратору' });
+  }
+  const visitId = req.params.id;
+  try {
+    const visits = await db.query('SELECT id FROM visits WHERE id = ?', [visitId]);
+    if (visits.length === 0) {
+      return res.status(404).json({ error: 'Визит не найден' });
+    }
+    await db.query('DELETE FROM visits WHERE id = ?', [visitId]);
+    res.json({ message: `Визит #${visitId} удалён` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка удаления визита' });
   }
 });
 

@@ -123,7 +123,8 @@ async function init() {
 
     // 2. Seed mock data if database is empty
     const usersCount = await query('SELECT COUNT(*) as count FROM users');
-    if (usersCount[0].count === 0) {
+    // БАГ #4 FIX: SQLite возвращает COUNT как строку — приводим к числу
+    if (parseInt(usersCount[0].count, 10) === 0) {
       console.log('🌱 Наполнение базы данных тестовыми данными...');
       
       const salt = await bcrypt.genSalt(10);

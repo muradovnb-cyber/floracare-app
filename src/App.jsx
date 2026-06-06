@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LandingPage from './pages/LandingPage';
 import ClientApp from './pages/ClientApp';
 import StaffApp from './pages/StaffApp';
+import AdminApp from './pages/AdminApp';
 import { api } from './utils/api';
 
 export default function App() {
@@ -19,7 +20,9 @@ export default function App() {
       try {
         const user = await api.getMe();
         setCurrentUser(user);
-        if (user.role === 'gardener' || user.role === 'admin') {
+        if (user.role === 'admin') {
+          setAppState('admin');
+        } else if (user.role === 'gardener') {
           setAppState('staff');
         } else {
           setAppState('client');
@@ -35,7 +38,10 @@ export default function App() {
 
   const handleLoginSuccess = (user, token) => {
     setCurrentUser(user);
-    if (user.role === 'gardener' || user.role === 'admin') {
+    // БАГ #5 FIX: отдельный роутинг для каждой роли
+    if (user.role === 'admin') {
+      setAppState('admin');
+    } else if (user.role === 'gardener') {
       setAppState('staff');
     } else {
       setAppState('client');
@@ -90,6 +96,9 @@ export default function App() {
       )}
       {appState === 'staff' && (
         <StaffApp initialUser={currentUser} onLogout={handleLogout} />
+      )}
+      {appState === 'admin' && (
+        <AdminApp user={currentUser} onLogout={handleLogout} />
       )}
     </>
   );
