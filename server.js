@@ -357,6 +357,50 @@ app.post('/api/payments/:id/pay', authenticateToken, async (req, res) => {
 });
 
 
+// ─── SALARY ENDPOINTS (gardener only) ───
+
+app.get('/api/salary', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'gardener') {
+    return res.status(403).json({ error: 'Доступ только для садовников' });
+  }
+  try {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    // Считаем выполненные визиты за текущий месяц
+    const doneVisits = await db.query(
+      `SELECT COUNT(*) as count FROM visits
+       WHERE gardener_id = ? AND status = 'd'
+       AND strftime('%m', date) = ? AND strftime('%Y', date) = ?`,
+      [req.user.id, String(month).padStart(2, '0'), String(year)]
+    );
+    const doneCount = parseInt(doneVisits[0].count, 10) || 0;
+
+    const BASE_SALARY = 2500000;
+    const BONUS_PER_VISIT = 50000;
+    const bonus = doneCount * BONUS_PER_VISIT;
+
+    // Авансы — в реальном проекте берём из БД
+    const advances = [];
+    const advances_total = advances.reduce((s, a) => s + a.amount, 0);
+
+    res.json({
+      base_salary: BASE_SALARY,
+      bonus,
+      done_visits: doneCount,
+      advances,
+      advances_total,
+      net: BASE_SALARY + bonus - advances_total,
+      month: now.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка загрузки зарплаты' });
+  }
+});
+
+
 // ─── ADMIN ONLY DATA LOADS ───
 
 app.get('/api/admin/users', authenticateToken, async (req, res) => {

@@ -12,6 +12,7 @@ export default function GardenerApp({ user, onLogout }) {
 
   const [myVisits, setMyVisits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [salary, setSalary] = useState(null);
 
   const loadVisits = async () => {
     try {
@@ -27,7 +28,17 @@ export default function GardenerApp({ user, onLogout }) {
 
   useEffect(() => {
     loadVisits();
+    if (page === 'salary') loadSalary();
   }, [page]);
+
+  const loadSalary = async () => {
+    try {
+      const res = await fetch('/api/salary', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('floracare_token')}` }
+      });
+      if (res.ok) setSalary(await res.json());
+    } catch (e) {}
+  };
 
   const todayVisits = myVisits.filter((v) => v.status === "p" || v.status === "s");
   const doneVisits = myVisits.filter((v) => v.status === "d");
@@ -76,7 +87,8 @@ export default function GardenerApp({ user, onLogout }) {
   const navItems = [
     { id: "today", icon: "📋", label: "Сегодня" },
     { id: "schedule", icon: "📅", label: "График" },
-    { id: "history", icon: "📚", label: "История" }
+    { id: "history", icon: "📚", label: "История" },
+    { id: "salary", icon: "💰", label: "Зарплата" }
   ];
 
   const statusLabel = (s) => {
@@ -261,6 +273,93 @@ export default function GardenerApp({ user, onLogout }) {
                     </div>
                     <div style={{ fontSize: 11, color: "#3A6A4A" }}>
                       ✓ Отчет сохранен в системе и отправлен клиенту
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {page === "salary" && (
+              <>
+                <div className="sec-title-g">Зарплата</div>
+                <div className="sec-sub-g">Текущий месяц — {new Date().toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</div>
+
+                {/* Итог месяца */}
+                <div className="card-g" style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ fontSize: 13, color: '#8ACBA0', fontWeight: 600 }}>Оклад за месяц</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: '#5DB85A' }}>
+                      {salary ? salary.base_salary.toLocaleString('ru-RU') : '2 500 000'} сум
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ fontSize: 13, color: '#8ACBA0' }}>Бонус (визитов: {doneCount})</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: '#7DC97A' }}>
+                      + {salary ? salary.bonus.toLocaleString('ru-RU') : (doneCount * 50000).toLocaleString('ru-RU')} сум
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid #1A2A1A', paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#E8E0D0' }}>Итого к выплате</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#5DB85A' }}>
+                      {salary
+                        ? (salary.base_salary + salary.bonus - salary.advances_total).toLocaleString('ru-RU')
+                        : (2500000 + doneCount * 50000).toLocaleString('ru-RU')} сум
+                    </div>
+                  </div>
+                </div>
+
+                {/* Авансы */}
+                <div className="sec-title-g" style={{ fontSize: 14, marginTop: 20, marginBottom: 8 }}>Авансы</div>
+                {salary && salary.advances && salary.advances.length > 0 ? (
+                  salary.advances.map((a, i) => (
+                    <div key={i} className="card-g" style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: 13, color: '#C0E0C0', fontWeight: 600 }}>{a.date}</div>
+                        <div style={{ fontSize: 11, color: '#4A7A5A', marginTop: 2 }}>{a.note}</div>
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#E0A060' }}>- {a.amount.toLocaleString('ru-RU')} сум</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="card-g" style={{ marginBottom: 8 }}>
+                    {salary && salary.advances && salary.advances.length === 0 ? (
+                      <div style={{ textAlign: 'center', color: '#3A6A4A', fontSize: 13 }}>Авансов в этом месяце нет</div>
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <div>
+                            <div style={{ fontSize: 13, color: '#C0E0C0', fontWeight: 600 }}>1 июня 2025</div>
+                            <div style={{ fontSize: 11, color: '#4A7A5A', marginTop: 2 }}>Аванс по запросу</div>
+                          </div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: '#E0A060' }}>- 500 000 сум</div>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontSize: 13, color: '#C0E0C0', fontWeight: 600 }}>15 июня 2025</div>
+                            <div style={{ fontSize: 11, color: '#4A7A5A', marginTop: 2 }}>Аванс по запросу</div>
+                          </div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: '#E0A060' }}>- 300 000 сум</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* История выплат */}
+                <div className="sec-title-g" style={{ fontSize: 14, marginTop: 20, marginBottom: 8 }}>История выплат</div>
+                {[
+                  { period: 'Май 2025', amount: '2 850 000', date: '31 мая 2025', status: 'Выплачено' },
+                  { period: 'Апрель 2025', amount: '2 700 000', date: '30 апр 2025', status: 'Выплачено' },
+                  { period: 'Март 2025', amount: '2 500 000', date: '31 мар 2025', status: 'Выплачено' },
+                ].map((p, i) => (
+                  <div key={i} className="card-g" style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 13, color: '#C0E0C0', fontWeight: 600 }}>{p.period}</div>
+                      <div style={{ fontSize: 11, color: '#4A7A5A', marginTop: 2 }}>{p.date}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#5DB85A' }}>{p.amount} сум</div>
+                      <div style={{ fontSize: 10, color: '#3A6A4A', marginTop: 2 }}>✓ {p.status}</div>
                     </div>
                   </div>
                 ))}
