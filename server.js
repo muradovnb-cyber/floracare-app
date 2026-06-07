@@ -310,11 +310,8 @@ app.get('/api/payments', authenticateToken, async (req, res) => {
       sql += ' WHERE user_id = ?';
       params.push(req.user.id);
     } else if (req.user.role === 'gardener') {
-      // БАГ #2 FIX: садовник видит только платежи своих клиентов
-      sql += ` WHERE user_id IN (
-        SELECT DISTINCT client_id FROM visits WHERE gardener_id = ?
-      )`;
-      params.push(req.user.id);
+      // Садовник не имеет доступа к платежам
+      return res.status(403).json({ error: 'Садовники не имеют доступа к платежам' });
     }
     // admin видит все платежи без фильтра
     sql += ' ORDER BY id DESC';
