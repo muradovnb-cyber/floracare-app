@@ -86,19 +86,40 @@ export default function App() {
     );
   }
 
+  // Лендинг занимает весь экран, кабинеты центрируются на десктопе
+  const isMobileApp = ['client', 'staff', 'admin'].includes(appState);
+
   return (
     <>
       {appState === 'landing' && (
         <LandingPage onLoginSuccess={handleLoginSuccess} />
       )}
-      {appState === 'client' && (
-        <ClientApp user={currentUser} onLogout={handleLogout} />
-      )}
-      {appState === 'staff' && (
-        <StaffApp initialUser={currentUser} onLogout={handleLogout} />
-      )}
-      {appState === 'admin' && (
-        <AdminApp user={currentUser} onLogout={handleLogout} />
+      {isMobileApp && (
+        <div style={{
+          minHeight: '100vh',
+          background: '#080C08',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start'
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '430px',
+            minHeight: '100vh',
+            position: 'relative',
+            boxShadow: '0 0 80px rgba(0,0,0,.7)'
+          }}>
+            {appState === 'client' && (
+              <ClientApp user={currentUser} onLogout={handleLogout} />
+            )}
+            {appState === 'staff' && (
+              <StaffApp initialUser={currentUser} onLogout={handleLogout} />
+            )}
+            {appState === 'admin' && (
+              <AdminApp user={currentUser} onLogout={handleLogout} />
+            )}
+          </div>
+        </div>
       )}
     </>
   );
