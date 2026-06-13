@@ -5,7 +5,8 @@
 body{background:#111;font-family:'DM Sans',sans-serif;}
 button,input,select,textarea{font-family:'DM Sans',sans-serif;}
 
-.shell{max-width:390px;margin:0 auto;min-height:100vh;background:#F0EBE1;position:relative;overflow:hidden;}
+.shell{width:100%;min-height:100vh;background:#F0EBE1;position:relative;overflow:hidden;}
+@media(min-width:768px){.shell{max-width:900px;margin:0 auto;}}
 
 /* ── ONBOARDING ── */
 .ob-wrap{min-height:100vh;display:flex;flex-direction:column;background:#F0EBE1;}
@@ -304,7 +305,7 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;}
 @keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* ── BOTTOM NAV ── */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:rgba(240,235,225,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:space-around;padding:8px 0 24px;z-index:200;}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:900px;background:rgba(240,235,225,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(0,0,0,.05);display:flex;justify-content:space-around;padding:8px 0 24px;z-index:200;}
 .nbtn{display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;padding:4px 12px;transition:transform .1s;}
 .nbtn:hover{transform:scale(1.06);}
 .nbtn-ic{width:38px;height:38px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;transition:background .2s;}

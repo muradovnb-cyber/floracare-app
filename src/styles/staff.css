@@ -113,7 +113,12 @@ input, textarea, button { font-family: 'Outfit', sans-serif; }
 }
 
 /* ── APP SHELL ── */
-.app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+.app { width: 100%; min-height: 100vh; position: relative; }
+@media (min-width: 768px) {
+  .app .content { max-width: 900px; margin: 0 auto; }
+  .app .topbar-inner { max-width: 900px; margin: 0 auto; }
+  .kpi-row { grid-template-columns: repeat(4, 1fr) !important; }
+}
 
 /* GARDENER theme — dark forest */
 .app-g { background: #0E1412; }
