@@ -114,56 +114,31 @@ export default function AdminApp({ user, onLogout }) {
   return (
     <div className="app app-a">
       {toast && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 110,
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "#18281A",
-            color: "#90CF8D",
-            fontSize: 13,
-            fontWeight: 500,
-            padding: "12px 24px",
-            borderRadius: 40,
-            boxShadow: "0 4px 24px rgba(0,0,0,.2)",
-            zIndex: 999,
-            whiteSpace: "nowrap",
-            animation: "fadeIn .3s ease"
-          }}
-        >
-          {toast}
-        </div>
+        <div className="admin-toast">{toast}</div>
       )}
 
-      <div className="topbar">
-        <div className="topbar-inner">
-          <div className="topbar-left">
-            <div className="topbar-logo">
-              Flora<em>Care</em>
-            </div>
-          </div>
-          <div className="topbar-right">
-            <div
-              style={{
-                background: "rgba(77,145,73,.15)",
-                color: "#90CF8D",
-                fontSize: 10,
-                fontWeight: 700,
-                padding: "3px 10px",
-                borderRadius: 20,
-                letterSpacing: "0.5px",
-                textTransform: "uppercase"
-              }}
-            >
-              {isFullAdmin ? "Гл. Администратор" : "Администратор"}
-            </div>
-            <button className="topbar-logout" onClick={onLogout}>
-              Выйти
-            </button>
+      {/* ── HEADER ── */}
+      <header className="admin-header">
+        <div className="admin-header-inner">
+          <div className="admin-logo">Flora<em>Care</em></div>
+          <nav className="admin-nav">
+            {navItems.map(n => (
+              <button
+                key={n.id}
+                className={`admin-nav-btn ${page === n.id ? 'active' : ''}`}
+                onClick={() => setPage(n.id)}
+              >
+                <span className="admin-nav-icon">{n.icon}</span>
+                {n.label}
+              </button>
+            ))}
+          </nav>
+          <div className="admin-header-right">
+            <div className="admin-role-chip">{isFullAdmin ? "Гл. Админ" : "Админ"}</div>
+            <button className="admin-logout-btn" onClick={onLogout}>Выйти</button>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="content">
         {loading ? (
@@ -620,19 +595,6 @@ export default function AdminApp({ user, onLogout }) {
         )}
       </div>
 
-      <div className="bottom-nav">
-        {navItems.map((n) => (
-          <button
-            key={n.id}
-            className={`nav-btn ${page === n.id ? "nav-btn-active" : "nav-btn-inactive"}`}
-            onClick={() => setPage(n.id)}
-          >
-            <span className="nav-icon">{n.icon}</span>
-            <span className="nav-lbl">{n.label}</span>
-            {page === n.id && <div className="nav-dot" />}
-          </button>
-        ))}
-      </div>
 
       {modalVisit && (
         <div className="overlay" onClick={() => setModalVisit(null)}>
