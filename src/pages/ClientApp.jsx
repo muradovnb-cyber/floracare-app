@@ -138,7 +138,7 @@ export default function ClientApp({ user, onLogout }) {
     <div className="shell">
       <div className="hdr">
         <div className="hdr-inner">
-          <div className="logo">
+          <div className="logo" onClick={onLogout} style={{cursor:'pointer'}}>
             Flora<em>Care</em>
           </div>
           <div className="hdr-btns">

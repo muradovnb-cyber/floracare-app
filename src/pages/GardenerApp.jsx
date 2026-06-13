@@ -118,7 +118,7 @@ export default function GardenerApp({ user, onLogout }) {
       <div className="topbar">
         <div className="topbar-inner">
           <div className="topbar-left">
-            <div className="topbar-logo">
+            <div className="topbar-logo" onClick={onLogout} style={{cursor:'pointer'}}>
               Flora<em>Care</em>
             </div>
             <div className="topbar-user">🌿 {user.name}</div>

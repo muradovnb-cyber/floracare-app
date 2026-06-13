@@ -70,7 +70,7 @@ export default function AdminApp({ user, onLogout }) {
 
       <header className="adm-header">
         <div className="adm-header-in">
-          <div className="adm-logo">Flora<em>Care</em></div>
+          <div className="adm-logo" onClick={onLogout} style={{cursor:'pointer'}}>Flora<em>Care</em></div>
           <nav className="adm-nav">
             {navItems.map(n => (
               <button key={n.id} className={`adm-nav-btn${page===n.id?' active':''}`} onClick={() => setPage(n.id)}>
